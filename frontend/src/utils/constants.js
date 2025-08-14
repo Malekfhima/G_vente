@@ -136,7 +136,3 @@ export const PERMISSIONS = {
     READ: [USER_ROLES.ADMIN],
   },
 };
-
-
-
-
