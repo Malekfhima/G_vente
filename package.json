@@ -27,11 +27,13 @@
   "author": "Votre Nom",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
   },
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"
   }
 }
-

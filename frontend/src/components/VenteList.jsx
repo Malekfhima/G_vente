@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import TicketCaisse from './TicketCaisse';
 
 const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
+  const [selectedVente, setSelectedVente] = useState(null);
+  
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
+    return new Intl.NumberFormat('fr-TN', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'TND'
     }).format(amount);
   };
 
@@ -100,10 +103,16 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
                   {(onEdit || onDelete) && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
+                        <button
+                          onClick={() => setSelectedVente(vente)}
+                          className="text-green-600 hover:text-green-900 transition-colors mr-2"
+                        >
+                          Ticket
+                        </button>
                         {onEdit && (
                           <button
                             onClick={() => onEdit(vente)}
-                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                            className="text-blue-600 hover:text-blue-900 transition-colors mr-2"
                           >
                             Modifier
                           </button>
@@ -138,7 +147,7 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
               <div className="text-2xl font-bold text-green-600">
                 {formatCurrency(ventes.reduce((sum, vente) => sum + vente.prixTotal, 0))}
               </div>
-              <div className="text-sm text-gray-500">Chiffre d'affaires</div>
+              <div className="text-sm text-gray-500">Chiffre d&apos;affaires</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
@@ -149,6 +158,18 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
           </div>
         </div>
       </div>
+      
+      {/* Modal du ticket de caisse */}
+      {selectedVente && (
+        <TicketCaisse
+          vente={selectedVente}
+          onClose={() => setSelectedVente(null)}
+          onPrint={() => {
+            console.log('Ticket imprimé pour la vente:', selectedVente.id);
+            setSelectedVente(null);
+          }}
+        />
+      )}
     </div>
   );
 };

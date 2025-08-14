@@ -15,4 +15,13 @@ export const env = {
   // Configuration du serveur de développement
   DEV_SERVER_PORT: 3000,
   API_SERVER_PORT: 5000,
+  
+  // Configuration des routes
+  ROUTES: {
+    HOME: "/",
+    LOGIN: "/login",
+    REGISTER: "/register",
+    PRODUCTS: "/produits",
+    SALES: "/ventes",
+  },
 };

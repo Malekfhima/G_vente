@@ -1,39 +1,25 @@
-// Exemple de configuration des variables d'environnement
-// Copiez ce fichier vers .env et modifiez les valeurs selon vos besoins
+// Configuration des variables d'environnement - Exemple
+// Copiez ce fichier vers .env et modifiez les valeurs selon votre environnement
 
 module.exports = {
   // Configuration de la base de données
-  database: {
-    url: "file:./dev.db",
-    // Pour PostgreSQL: "postgresql://username:password@localhost:5432/gestion_vente"
-  },
-
+  DATABASE_URL: "file:./dev.db",
+  
   // Configuration JWT
-  jwt: {
-    secret: "votre_secret_jwt_super_securise_changez_cela_en_production",
-    expiresIn: "24h",
-  },
-
+  JWT_SECRET: "votre_secret_jwt_super_securise_changez_cela_en_production",
+  JWT_EXPIRES_IN: "24h",
+  
   // Configuration du serveur
-  server: {
-    port: 5000,
-    nodeEnv: "development",
-  },
-
+  PORT: 5000,
+  NODE_ENV: "development",
+  
   // Configuration CORS
-  cors: {
-    origin: "http://localhost:3000",
-    credentials: true,
-  },
-
+  FRONTEND_URL: "http://localhost:3000",
+  CORS_CREDENTIALS: true,
+  
   // Configuration de sécurité
-  security: {
-    bcryptRounds: 12,
-  },
-
+  BCRYPT_ROUNDS: 12,
+  
   // Configuration des logs
-  logging: {
-    level: "combined",
-    morgan: "dev",
-  },
+  LOG_LEVEL: "combined",
 };

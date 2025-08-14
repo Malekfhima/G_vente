@@ -1,0 +1,25 @@
+@layer components {
+  .auth-page {
+    @apply min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8;
+  }
+
+  .auth-card {
+    @apply max-w-md w-full space-y-8 card;
+  }
+
+  .auth-brand {
+    @apply mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center;
+  }
+
+  .auth-title {
+    @apply mt-6 text-center text-3xl font-extrabold text-gray-900;
+  }
+
+  .auth-subtitle {
+    @apply mt-2 text-center text-sm text-gray-600;
+  }
+
+  .auth-form {
+    @apply mt-8 space-y-6;
+  }
+}

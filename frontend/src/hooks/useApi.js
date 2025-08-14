@@ -49,8 +49,8 @@ export const useProduits = () => {
   const fetchProduits = useCallback(async () => {
     try {
       const result = await executeApiCall(async () => {
-        const apiService = (await import("../services/api")).default;
-        return await apiService.getProduits();
+        const apiService = await import("../services/api");
+        return await apiService.default.getProduits();
       });
       setProduits(result);
       return result;
@@ -64,8 +64,8 @@ export const useProduits = () => {
     async (produitData) => {
       try {
         const result = await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.createProduit(produitData);
+          const apiService = await import("../services/api");
+          return await apiService.default.createProduit(produitData);
         });
 
         // Ajout du nouveau produit à la liste
@@ -83,8 +83,8 @@ export const useProduits = () => {
     async (id, produitData) => {
       try {
         const result = await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.updateProduit(id, produitData);
+          const apiService = await import("../services/api");
+          return await apiService.default.updateProduit(id, produitData);
         });
 
         // Mise à jour du produit dans la liste
@@ -104,8 +104,8 @@ export const useProduits = () => {
     async (id) => {
       try {
         await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.deleteProduit(id);
+          const apiService = await import("../services/api");
+          return await apiService.default.deleteProduit(id);
         });
 
         // Suppression du produit de la liste
@@ -122,8 +122,8 @@ export const useProduits = () => {
     async (params) => {
       try {
         const result = await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.searchProduits(params);
+          const apiService = await import("../services/api");
+          return await apiService.default.searchProduits(params);
         });
         setProduits(result);
         return result;
@@ -156,8 +156,8 @@ export const useVentes = () => {
   const fetchVentes = useCallback(async () => {
     try {
       const result = await executeApiCall(async () => {
-        const apiService = (await import("../services/api")).default;
-        return await apiService.getVentes();
+        const apiService = await import("../services/api");
+        return await apiService.default.getVentes();
       });
       setVentes(result);
       return result;
@@ -171,8 +171,8 @@ export const useVentes = () => {
     async (venteData) => {
       try {
         const result = await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.createVente(venteData);
+          const apiService = await import("../services/api");
+          return await apiService.default.createVente(venteData);
         });
 
         // Ajout de la nouvelle vente à la liste
@@ -190,8 +190,8 @@ export const useVentes = () => {
     async (id, venteData) => {
       try {
         const result = await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.updateVente(id, venteData);
+          const apiService = await import("../services/api");
+          return await apiService.default.updateVente(id, venteData);
         });
 
         // Mise à jour de la vente dans la liste
@@ -209,8 +209,8 @@ export const useVentes = () => {
     async (id) => {
       try {
         await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.deleteVente(id);
+          const apiService = await import("../services/api");
+          return await apiService.default.deleteVente(id);
         });
 
         // Suppression de la vente de la liste
@@ -226,8 +226,8 @@ export const useVentes = () => {
   const fetchMyVentes = useCallback(async () => {
     try {
       const result = await executeApiCall(async () => {
-        const apiService = (await import("../services/api")).default;
-        return await apiService.getMyVentes();
+        const apiService = await import("../services/api");
+        return await apiService.default.getMyVentes();
       });
       setVentes(result);
       return result;
@@ -241,8 +241,8 @@ export const useVentes = () => {
     async (periode) => {
       try {
         const result = await executeApiCall(async () => {
-          const apiService = (await import("../services/api")).default;
-          return await apiService.getVentesStats(periode);
+          const apiService = await import("../services/api");
+          return await apiService.default.getVentesStats(periode);
         });
         return result;
       } catch (err) {
@@ -266,7 +266,3 @@ export const useVentes = () => {
     clearError,
   };
 };
-
-
-
-

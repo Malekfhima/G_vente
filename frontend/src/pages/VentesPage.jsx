@@ -3,10 +3,11 @@ import { useAuth } from '../hooks/useAuth';
 import { useVentes, useProduits } from '../hooks/useApi';
 import VenteForm from '../components/VenteForm';
 import VenteList from '../components/VenteList';
-import { VALIDATION } from '../utils/constants';
+import TicketCaisse from '../components/TicketCaisse';
+
 
 const VentesPage = () => {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const { 
     ventes, 
     loading, 
@@ -22,30 +23,26 @@ const VentesPage = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [editingVente, setEditingVente] = useState(null);
-  const [selectedProduit, setSelectedProduit] = useState(null);
+  const [lastVente, setLastVente] = useState(null);
+
 
   useEffect(() => {
     fetchVentes();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const venteData = {
-      produitId: parseInt(formData.get('produitId')),
-      quantite: parseInt(formData.get('quantite'))
-    };
-
+  const handleSubmit = async (venteData) => {
     try {
       if (editingVente) {
         await updateVente(editingVente.id, venteData);
         setEditingVente(null);
       } else {
-        await createVente(venteData);
+        const newVente = await createVente(venteData);
+        // Afficher le ticket pour la nouvelle vente
+        if (newVente) {
+          setLastVente(newVente);
+        }
       }
       setShowForm(false);
-      e.target.reset();
-      setSelectedProduit(null);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
     }
@@ -53,7 +50,7 @@ const VentesPage = () => {
 
   const handleEdit = (vente) => {
     setEditingVente(vente);
-    setSelectedProduit(produits.find(p => p.id === vente.produitId));
+
     setShowForm(true);
   };
 
@@ -70,30 +67,12 @@ const VentesPage = () => {
   const handleCancel = () => {
     setShowForm(false);
     setEditingVente(null);
-    setSelectedProduit(null);
+
   };
 
-  const handleProduitChange = (produitId) => {
-    const produit = produits.find(p => p.id === parseInt(produitId));
-    setSelectedProduit(produit);
-  };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+
 
   if (loading && ventes.length === 0) {
     return (
@@ -168,6 +147,18 @@ const VentesPage = () => {
           onDelete={handleDelete}
           isAdmin={isAdmin}
         />
+        
+        {/* Modal du ticket de caisse pour nouvelle vente */}
+        {lastVente && (
+          <TicketCaisse
+            vente={lastVente}
+            onClose={() => setLastVente(null)}
+            onPrint={() => {
+              console.log('Ticket imprimé pour la nouvelle vente:', lastVente.id);
+              setLastVente(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useVentes } from '../hooks/useApi';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES, STATS_PERIODS } from '../utils/constants';
 
 const HomePage = () => {
   const { user, isAuthenticated } = useAuth();
   const { fetchVentesStats, loading: statsLoading } = useVentes();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
 
@@ -25,9 +27,9 @@ const HomePage = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
+    return new Intl.NumberFormat('fr-TN', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'TND'
     }).format(amount);
   };
 
@@ -57,7 +59,7 @@ const HomePage = () => {
               href={ROUTES.REGISTER}
               className="inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
             >
-              S'inscrire
+              S&apos;inscrire
             </a>
           </div>
         </div>
@@ -66,10 +68,10 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="page">
       {/* En-tête de la page */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div className="page-header">
+        <div className="page-header-inner">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -89,7 +91,7 @@ const HomePage = () => {
                 id="period"
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                className="select-field w-48"
               >
                 {STATS_PERIODS.map((period) => (
                   <option key={period.value} value={period.value}>
@@ -102,15 +104,15 @@ const HomePage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div className="page-container">
         {/* Cartes de statistiques */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="stats-grid">
           {/* Total des ventes */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+          <div className="stat-card">
+            <div className="card-body">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                  <div className="stat-card-icon bg-blue-500">
                     <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                     </svg>
@@ -135,11 +137,11 @@ const HomePage = () => {
           </div>
 
           {/* Revenus totaux */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+          <div className="stat-card">
+            <div className="card-body">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                  <div className="stat-card-icon bg-green-500">
                     <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
@@ -164,11 +166,11 @@ const HomePage = () => {
           </div>
 
           {/* Période sélectionnée */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+          <div className="stat-card">
+            <div className="card-body">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                  <div className="stat-card-icon bg-purple-500">
                     <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                     </svg>
@@ -190,13 +192,16 @@ const HomePage = () => {
         </div>
 
         {/* Actions rapides */}
-        <div className="bg-white shadow rounded-lg mb-8">
-          <div className="px-4 py-5 sm:p-6">
+        <div className="section mb-8">
+          <div className="section-inner">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
               Actions rapides
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all">
+              <div 
+                className="bg-white p-6 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
+                onClick={() => navigate(ROUTES.PRODUCTS)}
+              >
                 <div>
                   <span className="rounded-lg inline-flex p-3 bg-blue-50 text-blue-700 ring-4 ring-white">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -205,7 +210,7 @@ const HomePage = () => {
                   </span>
                 </div>
                 <div className="mt-8">
-                  <h3 className="text-lg font-medium">
+                  <h3 className="text-lg font-medium group-hover:text-blue-600 transition-colors">
                     Gérer les produits
                   </h3>
                   <p className="mt-2 text-sm text-gray-500">
@@ -214,7 +219,10 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all">
+              <div 
+                className="bg-white p-6 rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all cursor-pointer group"
+                onClick={() => navigate(ROUTES.SALES)}
+              >
                 <div>
                   <span className="rounded-lg inline-flex p-3 bg-green-50 text-green-700 ring-4 ring-white">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -223,7 +231,7 @@ const HomePage = () => {
                   </span>
                 </div>
                 <div className="mt-8">
-                  <h3 className="text-lg font-medium">
+                  <h3 className="text-lg font-medium group-hover:text-green-600 transition-colors">
                     Nouvelle vente
                   </h3>
                   <p className="mt-2 text-sm text-gray-500">
@@ -232,7 +240,10 @@ const HomePage = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all">
+              <div 
+                className="bg-white p-6 rounded-lg border border-gray-200 hover:border-yellow-300 hover:shadow-md transition-all cursor-pointer group"
+                onClick={() => navigate(ROUTES.SALES)}
+              >
                 <div>
                   <span className="rounded-lg inline-flex p-3 bg-yellow-50 text-yellow-700 ring-4 ring-white">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -241,16 +252,19 @@ const HomePage = () => {
                   </span>
                 </div>
                 <div className="mt-8">
-                  <h3 className="text-lg font-medium">
+                  <h3 className="text-lg font-medium group-hover:text-yellow-600 transition-colors">
                     Voir les ventes
                   </h3>
                   <p className="mt-2 text-sm text-gray-500">
-                    Consulter l'historique de toutes vos ventes et statistiques.
+                    Consulter l&apos;historique de toutes vos ventes et statistiques.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all">
+              <div 
+                className="bg-white p-6 rounded-lg border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer group"
+                onClick={() => navigate(ROUTES.PRODUCTS)}
+              >
                 <div>
                   <span className="rounded-lg inline-flex p-3 bg-purple-50 text-purple-700 ring-4 ring-white">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -259,7 +273,7 @@ const HomePage = () => {
                   </span>
                 </div>
                 <div className="mt-8">
-                  <h3 className="text-lg font-medium">
+                  <h3 className="text-lg font-medium group-hover:text-purple-600 transition-colors">
                     Rechercher
                   </h3>
                   <p className="mt-2 text-sm text-gray-500">
@@ -272,8 +286,8 @@ const HomePage = () => {
         </div>
 
         {/* Informations utilisateur */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
+        <div className="section">
+          <div className="section-inner">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
               Informations du compte
             </h3>

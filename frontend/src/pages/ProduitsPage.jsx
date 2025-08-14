@@ -3,7 +3,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useProduits } from '../hooks/useApi';
 import ProduitForm from '../components/ProduitForm';
 import ProduitList from '../components/ProduitList';
-import { PRODUCT_CATEGORIES, VALIDATION } from '../utils/constants';
+import BarcodeScanner from '../components/BarcodeScanner';
+import { PRODUCT_CATEGORIES } from '../utils/constants';
 
 const ProduitsPage = () => {
   const { isAdmin } = useAuth();
@@ -23,10 +24,11 @@ const ProduitsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('nom');
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
 
   useEffect(() => {
     fetchProduits();
-  }, []);
+  }, [fetchProduits]);
 
   const handleSubmit = async (produitData) => {
     try {
@@ -60,6 +62,37 @@ const ProduitsPage = () => {
   const handleCancel = () => {
     setShowForm(false);
     setEditingProduit(null);
+  };
+
+  const handleProductFound = async (productData) => {
+    try {
+      if (productData.isExisting) {
+        // Mettre à jour le stock du produit existant
+        await updateProduit(productData.id, {
+          stock: productData.stock
+        });
+      } else if (productData.isNew) {
+        // Créer un nouveau produit avec le code-barres
+        await createProduit({
+          nom: productData.nom,
+          description: productData.description,
+          prix: productData.prix,
+          stock: productData.stock,
+          categorie: productData.categorie
+        });
+      } else {
+        // Créer un nouveau produit depuis la base de données
+        await createProduit({
+          nom: productData.nom,
+          description: `Produit ajouté par code-barres`,
+          prix: productData.prix,
+          stock: productData.stock,
+          categorie: productData.categorie
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout par code-barres:', error);
+    }
   };
 
   const filteredProduits = produits
@@ -99,12 +132,23 @@ const ProduitsPage = () => {
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold text-gray-900">Gestion des Produits</h1>
               {isAdmin && (
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
-                >
-                  Ajouter un produit
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setShowBarcodeScanner(!showBarcodeScanner)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>Code-barres</span>
+                  </button>
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+                  >
+                    Ajouter un produit
+                  </button>
+                </div>
               )}
             </div>
 
@@ -143,6 +187,14 @@ const ProduitsPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Scanner de code-barres */}
+        {showBarcodeScanner && (
+          <BarcodeScanner
+            onProductFound={handleProductFound}
+            existingProducts={produits}
+          />
+        )}
 
         {/* Formulaire d'ajout/modification */}
         {showForm && (

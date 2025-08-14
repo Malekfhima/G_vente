@@ -7,11 +7,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Installer les dépendances
-RUN npm ci --only=production
+# Installer les dépendances (inclure devDependencies pour Prisma CLI)
+RUN npm ci
 
 # Générer le client Prisma
 RUN npx prisma generate
+
+# Optionnel: retirer les devDependencies pour l'image finale
+RUN npm prune --production
 
 # Copier le code source
 COPY . .

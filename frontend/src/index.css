@@ -1,3 +1,12 @@
+/* Fichiers de styles additionnels (doivent être avant toute autre règle) */
+@import "./styles/components.css";
+@import "./styles/layout.css";
+@import "./styles/utilities.css";
+@import "./styles/pages/auth.css";
+@import "./styles/pages/dashboard.css";
+@import "./styles/pages/produits.css";
+@import "./styles/pages/ventes.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,6 +21,8 @@
     @apply bg-gray-50 text-gray-900;
   }
 }
+
+/* (Déplacé en haut du fichier - imports déjà présents lignes 2-8) */
 
 @layer components {
   .btn-primary {
@@ -44,6 +55,90 @@
 
   .table-cell {
     @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  }
+
+  /* Champs de formulaire et états */
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .select-field {
+    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  .input-error {
+    @apply border-red-500 ring-2 ring-red-500;
+  }
+
+  /* Mise en page générique */
+  .page {
+    @apply min-h-screen bg-gray-50;
+  }
+
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6;
+  }
+
+  .page-header {
+    @apply bg-white border-b border-gray-200;
+  }
+
+  .page-header-inner {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6;
+  }
+
+  .section {
+    @apply bg-transparent;
+  }
+
+  .section-inner {
+    @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
+  }
+
+  .stats-grid {
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8;
+  }
+
+  .stat-card {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  .stat-card-icon {
+    @apply rounded-md p-2;
+  }
+
+  /* Auth */
+  .auth-page {
+    @apply min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4;
+  }
+
+  .auth-card {
+    @apply w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-6 animate-fade-in;
+  }
+
+  .auth-brand {
+    @apply h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center shadow text-white mb-4;
+  }
+
+  .auth-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+
+  .auth-subtitle {
+    @apply text-sm text-gray-600;
+  }
+
+  .auth-form {
+    @apply mt-6 space-y-5;
+  }
+
+  .btn-link {
+    @apply text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2;
   }
 }
 

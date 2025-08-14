@@ -86,7 +86,7 @@ export const FORMAT = {
   DATE_FORMAT: "dd/MM/yyyy",
   TIME_FORMAT: "HH:mm",
   DATETIME_FORMAT: "dd/MM/yyyy HH:mm",
-  CURRENCY: "EUR",
+  CURRENCY: "TND",
   DECIMAL_PLACES: 2,
 };
 

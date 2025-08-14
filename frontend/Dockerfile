@@ -21,11 +21,10 @@ FROM nginx:alpine
 # Copier les fichiers buildés
 COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
-# Copier la configuration Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+# Utiliser la configuration Nginx par défaut (SPA servie depuis /usr/share/nginx/html)
 
-# Exposer le port
-EXPOSE 3000
+# Exposer le port HTTP par défaut de Nginx
+EXPOSE 80
 
 # Commande de démarrage
 CMD ["nginx", "-g", "daemon off;"]

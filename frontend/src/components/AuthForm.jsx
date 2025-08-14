@@ -108,24 +108,24 @@ const AuthForm = ({ mode = 'login' }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="auth-page">
+      <div className="auth-card">
         <div>
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center">
+          <div className="auth-brand">
             <svg className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="auth-title">
             {isLoginMode ? 'Connexion à votre compte' : 'Créer un nouveau compte'}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="auth-subtitle">
             {isLoginMode ? (
               <>
                 Ou{' '}
                 <button
                   onClick={() => navigate(ROUTES.REGISTER)}
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="btn-link"
                 >
                   créez un compte gratuitement
                 </button>
@@ -135,7 +135,7 @@ const AuthForm = ({ mode = 'login' }) => {
                 Ou{' '}
                 <button
                   onClick={() => navigate(ROUTES.LOGIN)}
-                  className="font-medium text-blue-600 hover:text-blue-500"
+                  className="btn-link"
                 >
                   connectez-vous à votre compte existant
                 </button>
@@ -144,12 +144,12 @@ const AuthForm = ({ mode = 'login' }) => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="space-y-4">
             {/* Nom (inscription uniquement) */}
             {!isLoginMode && (
               <div>
-                <label htmlFor="nom" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="nom" className="form-label">
                   Nom complet
                 </label>
                 <input
@@ -159,9 +159,7 @@ const AuthForm = ({ mode = 'login' }) => {
                   required={!isLoginMode}
                   value={formData.nom}
                   onChange={handleInputChange}
-                  className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                    errors.nom ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                  className={`input-field ${errors.nom ? 'input-error' : ''}`}
                   placeholder="Votre nom complet"
                 />
                 {getFieldError('nom')}
@@ -170,7 +168,7 @@ const AuthForm = ({ mode = 'login' }) => {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="form-label">
                 Adresse email
               </label>
               <input
@@ -181,9 +179,7 @@ const AuthForm = ({ mode = 'login' }) => {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.email ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`input-field ${errors.email ? 'input-error' : ''}`}
                 placeholder="votre@email.com"
               />
               {getFieldError('email')}
@@ -191,7 +187,7 @@ const AuthForm = ({ mode = 'login' }) => {
 
             {/* Mot de passe */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="form-label">
                 Mot de passe
               </label>
               <input
@@ -202,9 +198,7 @@ const AuthForm = ({ mode = 'login' }) => {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  errors.password ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                className={`input-field ${errors.password ? 'input-error' : ''}`}
                 placeholder="Votre mot de passe"
               />
               {getFieldError('password')}
@@ -213,7 +207,7 @@ const AuthForm = ({ mode = 'login' }) => {
             {/* Confirmation mot de passe (inscription uniquement) */}
             {!isLoginMode && (
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmPassword" className="form-label">
                   Confirmer le mot de passe
                 </label>
                 <input
@@ -224,9 +218,7 @@ const AuthForm = ({ mode = 'login' }) => {
                   required={!isLoginMode}
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
+                  className={`input-field ${errors.confirmPassword ? 'input-error' : ''}`}
                   placeholder="Confirmez votre mot de passe"
                 />
                 {getFieldError('confirmPassword')}
@@ -239,11 +231,7 @@ const AuthForm = ({ mode = 'login' }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-              }`}
+              className={`w-full btn btn-primary ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isSubmitting ? (
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

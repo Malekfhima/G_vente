@@ -1,0 +1,9 @@
+@layer components {
+  .filters-grid {
+    @apply grid grid-cols-1 md:grid-cols-4 gap-4;
+  }
+
+  .product-table-status {
+    @apply inline-flex px-2 py-1 text-xs font-semibold rounded-full;
+  }
+}

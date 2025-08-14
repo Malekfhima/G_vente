@@ -3,9 +3,9 @@ import { PRODUCT_CATEGORIES } from '../utils/constants';
 
 const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
+    return new Intl.NumberFormat('fr-TN', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'TND'
     }).format(amount);
   };
 
