@@ -56,7 +56,7 @@ gestion-vente/
 
 ### 1. Cloner le projet
 ```bash
-git clone <url-du-repo>
+git clone https://github.com/Malekfhima/G_vente.git
 cd gestion-vente
 ```
 
