@@ -10,6 +10,7 @@ const config = require("./config/config");
 const authRoutes = require("./routes/auth");
 const produitRoutes = require("./routes/produits");
 const venteRoutes = require("./routes/ventes");
+const userRoutes = require("./routes/users");
 
 const app = express();
 const PORT = config.server.port;
@@ -42,6 +43,7 @@ app.get("/", (req, res) => {
       auth: "/api/auth",
       produits: "/api/produits",
       ventes: "/api/ventes",
+      users: "/api/users",
     },
   });
 });
@@ -50,6 +52,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/produits", produitRoutes);
 app.use("/api/ventes", venteRoutes);
+app.use("/api/users", userRoutes);
 
 // Middleware de gestion des erreurs 404
 app.use("*", (req, res) => {
