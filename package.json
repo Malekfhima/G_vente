@@ -1,0 +1,37 @@
+{
+  "name": "gestion-vente",
+  "version": "1.0.0",
+  "description": "Application complète de gestion des ventes avec authentification, gestion des produits et suivi des ventes",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "db:setup": "cd backend && npm run db:generate && npm run db:push && npm run db:seed",
+    "db:reset": "cd backend && npm run db:push && npm run db:seed",
+    "test": "echo \"Tests non configurés\" && exit 0"
+  },
+  "keywords": [
+    "gestion",
+    "vente",
+    "api",
+    "nodejs",
+    "express",
+    "prisma",
+    "react",
+    "vite"
+  ],
+  "author": "Votre Nom",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
+
