@@ -21,6 +21,3 @@ router.put("/:id", authenticateToken, requireAdmin, updateProduit);
 router.delete("/:id", authenticateToken, requireAdmin, deleteProduit);
 
 module.exports = router;
-
-
-
