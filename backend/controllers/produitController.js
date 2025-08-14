@@ -163,7 +163,10 @@ const searchProduits = async (req, res) => {
 
     // Recherche par nom ou description (SQLite ne supporte pas mode: "insensitive")
     if (q) {
-      where.OR = [{ nom: { contains: q } }, { description: { contains: q } }];
+      where.OR = [
+        { nom: { contains: q } },
+        { description: { contains: q } },
+      ];
     }
 
     // Filtre par catégorie
@@ -198,3 +201,6 @@ module.exports = {
   deleteProduit,
   searchProduits,
 };
+
+
+

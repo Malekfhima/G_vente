@@ -16,11 +16,9 @@ const app = express();
 const PORT = config.server.port;
 
 // Middlewares de sécurité
-app.use(
-  helmet({
-    contentSecurityPolicy: false, // Désactiver CSP pour le développement
-  })
-);
+app.use(helmet({
+  contentSecurityPolicy: false, // Désactiver CSP pour le développement
+}));
 
 app.use(
   cors({
