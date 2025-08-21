@@ -88,15 +88,7 @@ const VentesPage = () => {
         {/* En-tête */}
         <div className="bg-white shadow rounded-lg mb-6">
           <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold text-gray-900">Gestion des Ventes</h1>
-              <button
-                onClick={() => setShowForm(true)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
-              >
-                Nouvelle vente
-              </button>
-            </div>
+            
 
             <div className="text-sm text-gray-600">
               {ventes.length} vente(s) enregistrée(s)

@@ -1,4 +1,4 @@
-import { env } from '../config/env';
+import { env } from "../config/env";
 
 class ApiService {
   constructor() {
@@ -137,6 +137,51 @@ class ApiService {
     const params = periode ? { periode } : {};
     const queryString = new URLSearchParams(params).toString();
     return this.request(`/ventes/stats?${queryString}`);
+  }
+
+  // Statistiques des utilisateurs (admin)
+  async getUsersStats() {
+    return this.request(`/users/stats`);
+  }
+
+  // Clients
+  async getClients() {
+    return this.request("/clients");
+  }
+  async createClient(data) {
+    return this.request("/clients", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+  async updateClient(id, data) {
+    return this.request(`/clients/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteClient(id) {
+    return this.request(`/clients/${id}`, { method: "DELETE" });
+  }
+
+  // Fournisseurs
+  async getFournisseurs() {
+    return this.request("/fournisseurs");
+  }
+  async createFournisseur(data) {
+    return this.request("/fournisseurs", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+  async updateFournisseur(id, data) {
+    return this.request(`/fournisseurs/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteFournisseur(id) {
+    return this.request(`/fournisseurs/${id}`, { method: "DELETE" });
   }
 
   // Méthode pour vérifier la connectivité

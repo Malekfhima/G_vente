@@ -8,7 +8,10 @@ async function main() {
   console.log("🌱 Début du seeding de la base de données...");
 
   // Création d'un utilisateur admin
-  const hashedPassword = await bcrypt.hash("admin123", config.security.bcryptRounds);
+  const hashedPassword = await bcrypt.hash(
+    "admin123",
+    config.security.bcryptRounds
+  );
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@gestion-vente.com" },
@@ -24,7 +27,10 @@ async function main() {
   console.log("✅ Utilisateur admin créé:", admin.email);
 
   // Création d'un utilisateur vendeur
-  const vendeurPassword = await bcrypt.hash("vendeur123", config.security.bcryptRounds);
+  const vendeurPassword = await bcrypt.hash(
+    "vendeur123",
+    config.security.bcryptRounds
+  );
 
   const vendeur = await prisma.user.upsert({
     where: { email: "vendeur@gestion-vente.com" },
@@ -40,58 +46,89 @@ async function main() {
   console.log("✅ Utilisateur vendeur créé:", vendeur.email);
 
   // Création de catégories de produits
-  const categories = ["Électronique", "Vêtements", "Livres", "Maison", "Sport"];
+  const categories = [
+    "SERVICES",
+    "IMPRESSION",
+    "PHOTOCOPIE",
+    "PLASTIFICATION",
+    "RELIURE",
+    "SCOLARITE",
+  ];
 
   // Création de produits de test
   const produits = [
+    // Services scolaires - Impression / Photocopie
     {
-      nom: "Smartphone Samsung Galaxy",
-      description: 'Smartphone Android avec écran 6.1" et appareil photo 48MP',
-      prix: 299.99,
-      stock: 50,
-      categorie: "Électronique",
+      nom: "Impression N/B - A4",
+      description: "Par page",
+      prix: 0.2,
+      stock: 0,
+      categorie: "IMPRESSION",
     },
     {
-      nom: "Laptop HP Pavilion",
-      description: 'Ordinateur portable 15.6" avec processeur Intel i5',
-      prix: 699.99,
-      stock: 25,
-      categorie: "Électronique",
+      nom: "Impression Couleur - A4",
+      description: "Par page",
+      prix: 0.8,
+      stock: 0,
+      categorie: "IMPRESSION",
     },
     {
-      nom: "T-shirt en coton",
-      description: "T-shirt confortable en coton 100% bio",
-      prix: 19.99,
-      stock: 100,
-      categorie: "Vêtements",
+      nom: "Photocopie N/B - A4",
+      description: "Par page",
+      prix: 0.15,
+      stock: 0,
+      categorie: "PHOTOCOPIE",
     },
     {
-      nom: "Jeans slim fit",
-      description: "Jeans moderne avec coupe slim et stretch",
-      prix: 49.99,
-      stock: 75,
-      categorie: "Vêtements",
+      nom: "Photocopie Couleur - A4",
+      description: "Par page",
+      prix: 0.7,
+      stock: 0,
+      categorie: "PHOTOCOPIE",
+    },
+    // Plastification / Reliure
+    {
+      nom: "Plastification A4",
+      description: "Unité",
+      prix: 2.5,
+      stock: 0,
+      categorie: "PLASTIFICATION",
     },
     {
-      nom: 'Livre "Le Petit Prince"',
-      description: "Édition illustrée du classique de Saint-Exupéry",
-      prix: 12.99,
-      stock: 200,
-      categorie: "Livres",
+      nom: "Plastification A3",
+      description: "Unité",
+      prix: 4.0,
+      stock: 0,
+      categorie: "PLASTIFICATION",
     },
     {
-      nom: "Canapé 3 places",
-      description: "Canapé confortable en tissu avec accoudoirs rembourrés",
-      prix: 599.99,
-      stock: 10,
-      categorie: "Maison",
+      nom: "Reliure Spirale (jusqu'à 50p)",
+      description: "Unité",
+      prix: 3.0,
+      stock: 0,
+      categorie: "RELIURE",
     },
     {
-      nom: "Ballon de football",
-      description: "Ballon officiel taille 5 pour matchs professionnels",
-      prix: 29.99,
-      stock: 60,
-      categorie: "Sport",
+      nom: "Reliure Spirale (jusqu'à 100p)",
+      description: "Unité",
+      prix: 5.0,
+      stock: 0,
+      categorie: "RELIURE",
+    },
+    // Scolarité
+    {
+      nom: "Inscription scolaire",
+      description: "Frais de dossier",
+      prix: 15.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+    },
+    {
+      nom: "Attestation / Certificat",
+      description: "Délivrance de document",
+      prix: 2.0,
+      stock: 0,
+      categorie: "SCOLARITE",
     },
   ];
 
@@ -99,7 +136,10 @@ async function main() {
     const produit = await prisma.produit.upsert({
       where: { nom: produitData.nom },
       update: {},
-      create: produitData,
+      create: {
+        ...produitData,
+        // Ces éléments sont des services, on laisse stock à 0
+      },
     });
     console.log(`✅ Produit créé: ${produit.nom}`);
   }
@@ -143,6 +183,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
-
-

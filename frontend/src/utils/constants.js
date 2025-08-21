@@ -104,6 +104,9 @@ export const ROUTES = {
   REGISTER: "/register",
   PRODUCTS: "/produits",
   SALES: "/ventes",
+  USERS: "/users",
+  CLIENTS: "/clients",
+  SUPPLIERS: "/fournisseurs",
   PROFILE: "/profile",
 };
 

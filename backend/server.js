@@ -11,14 +11,18 @@ const authRoutes = require("./routes/auth");
 const produitRoutes = require("./routes/produits");
 const venteRoutes = require("./routes/ventes");
 const userRoutes = require("./routes/users");
+const clientRoutes = require("./routes/clients");
+const fournisseurRoutes = require("./routes/fournisseurs");
 
 const app = express();
 const PORT = config.server.port;
 
 // Middlewares de sécurité
-app.use(helmet({
-  contentSecurityPolicy: false, // Désactiver CSP pour le développement
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Désactiver CSP pour le développement
+  })
+);
 
 app.use(
   cors({
@@ -44,6 +48,8 @@ app.get("/", (req, res) => {
       produits: "/api/produits",
       ventes: "/api/ventes",
       users: "/api/users",
+      clients: "/api/clients",
+      fournisseurs: "/api/fournisseurs",
     },
   });
 });
@@ -53,6 +59,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/produits", produitRoutes);
 app.use("/api/ventes", venteRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/clients", clientRoutes);
+app.use("/api/fournisseurs", fournisseurRoutes);
 
 // Middleware de gestion des erreurs 404
 app.use("*", (req, res) => {

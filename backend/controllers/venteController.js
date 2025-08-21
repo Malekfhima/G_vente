@@ -9,7 +9,12 @@ const getAllVentes = async (req, res) => {
           select: { id: true, nom: true, email: true },
         },
         produit: {
-          select: { id: true, nom: true, prix: true },
+          select: {
+            id: true,
+            nom: true,
+            prix: true,
+            categorie: true,
+          },
         },
       },
       orderBy: { date: "desc" },
@@ -33,7 +38,13 @@ const getVenteById = async (req, res) => {
           select: { id: true, nom: true, email: true },
         },
         produit: {
-          select: { id: true, nom: true, prix: true, stock: true },
+          select: {
+            id: true,
+            nom: true,
+            prix: true,
+            stock: true,
+            categorie: true,
+          },
         },
       },
     });
@@ -78,8 +89,11 @@ const createVente = async (req, res) => {
       return res.status(404).json({ message: "Produit non trouvé" });
     }
 
-    // Vérification du stock disponible
-    if (produit.stock < quantite) {
+    const isService =
+      produit.isService === true || produit.categorie === "SERVICES";
+
+    // Vérification du stock disponible (sauf pour services)
+    if (!isService && produit.stock < quantite) {
       return res.status(400).json({
         message: `Stock insuffisant. Disponible: ${produit.stock}`,
       });
@@ -103,16 +117,23 @@ const createVente = async (req, res) => {
             select: { id: true, nom: true, email: true },
           },
           produit: {
-            select: { id: true, nom: true, prix: true },
+            select: {
+              id: true,
+              nom: true,
+              prix: true,
+              categorie: true,
+            },
           },
         },
       });
 
-      // Mise à jour du stock
-      await tx.produit.update({
-        where: { id: parseInt(produitId) },
-        data: { stock: produit.stock - quantite },
-      });
+      // Mise à jour du stock si non service
+      if (!isService) {
+        await tx.produit.update({
+          where: { id: parseInt(produitId) },
+          data: { stock: produit.stock - quantite },
+        });
+      }
 
       return vente;
     });
@@ -178,7 +199,12 @@ const updateVente = async (req, res) => {
             select: { id: true, nom: true, email: true },
           },
           produit: {
-            select: { id: true, nom: true, prix: true },
+            select: {
+              id: true,
+              nom: true,
+              prix: true,
+              categorie: true,
+            },
           },
         },
       });
@@ -249,7 +275,12 @@ const getVentesByUser = async (req, res) => {
       where: { userId },
       include: {
         produit: {
-          select: { id: true, nom: true, prix: true },
+          select: {
+            id: true,
+            nom: true,
+            prix: true,
+            categorie: true,
+          },
         },
       },
       orderBy: { date: "desc" },
@@ -326,6 +357,47 @@ const getVentesStats = async (req, res) => {
   }
 };
 
+// Exporter les ventes en PDF
+const pdf = require("pdfkit");
+const exportVentesPDF = async (req, res) => {
+  try {
+    const ventes = await prisma.vente.findMany({
+      include: {
+        user: { select: { nom: true, email: true } },
+        produit: { select: { nom: true, prix: true } },
+      },
+      orderBy: { date: "desc" },
+    });
+
+    // Création du PDF
+    const doc = new pdf();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'attachment; filename="ventes.pdf"');
+    doc.pipe(res);
+
+    doc.fontSize(18).text("Liste des ventes", { align: "center" });
+    doc.moveDown();
+
+    ventes.forEach((vente, i) => {
+      doc
+        .fontSize(12)
+        .text(
+          `${i + 1}. Produit: ${vente.produit.nom} | Quantité: ${
+            vente.quantite
+          } | Prix total: ${vente.prixTotal}€ | Vendu par: ${vente.user.nom} (${
+            vente.user.email
+          }) | Date: ${new Date(vente.date).toLocaleString()}`
+        );
+      doc.moveDown(0.5);
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error("Erreur export PDF:", error);
+    res.status(500).json({ message: "Erreur export PDF" });
+  }
+};
+
 module.exports = {
   getAllVentes,
   getVenteById,
@@ -334,7 +406,5 @@ module.exports = {
   deleteVente,
   getVentesByUser,
   getVentesStats,
+  exportVentesPDF,
 };
-
-
-

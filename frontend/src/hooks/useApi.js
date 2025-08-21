@@ -266,3 +266,137 @@ export const useVentes = () => {
     clearError,
   };
 };
+
+// Hook pour clients
+export const useClients = () => {
+  const { loading, error, executeApiCall, clearError, setApiError } = useApi();
+  const [clients, setClients] = useState([]);
+
+  const fetchClients = useCallback(async () => {
+    try {
+      const result = await executeApiCall(async () => {
+        const apiService = await import("../services/api");
+        return await apiService.default.getClients();
+      });
+      setClients(result.clients || []);
+      return result;
+    } catch (err) {
+      setApiError("Erreur lors du chargement des clients");
+      throw err;
+    }
+  }, [executeApiCall, setApiError]);
+
+  const createClient = useCallback(
+    async (data) => {
+      const result = await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.createClient(data);
+      });
+      setClients((prev) => [result.client, ...prev]);
+      return result;
+    },
+    [executeApiCall]
+  );
+
+  const updateClient = useCallback(
+    async (id, data) => {
+      const result = await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.updateClient(id, data);
+      });
+      setClients((prev) => prev.map((c) => (c.id === id ? result.client : c)));
+      return result;
+    },
+    [executeApiCall]
+  );
+
+  const deleteClient = useCallback(
+    async (id) => {
+      await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.deleteClient(id);
+      });
+      setClients((prev) => prev.filter((c) => c.id !== id));
+    },
+    [executeApiCall]
+  );
+
+  return {
+    clients,
+    loading,
+    error,
+    fetchClients,
+    createClient,
+    updateClient,
+    deleteClient,
+    clearError,
+  };
+};
+
+// Hook pour fournisseurs
+export const useFournisseurs = () => {
+  const { loading, error, executeApiCall, clearError, setApiError } = useApi();
+  const [fournisseurs, setFournisseurs] = useState([]);
+
+  const fetchFournisseurs = useCallback(async () => {
+    try {
+      const result = await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.getFournisseurs();
+      });
+      setFournisseurs(result.fournisseurs || []);
+      return result;
+    } catch (err) {
+      setApiError("Erreur lors du chargement des fournisseurs");
+      throw err;
+    }
+  }, [executeApiCall, setApiError]);
+
+  const createFournisseur = useCallback(
+    async (data) => {
+      const result = await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.createFournisseur(data);
+      });
+      setFournisseurs((prev) => [result.fournisseur, ...prev]);
+      return result;
+    },
+    [executeApiCall]
+  );
+
+  const updateFournisseur = useCallback(
+    async (id, data) => {
+      const result = await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.updateFournisseur(id, data);
+      });
+      setFournisseurs((prev) =>
+        prev.map((f) => (f.id === id ? result.fournisseur : f))
+      );
+      return result;
+    },
+    [executeApiCall]
+  );
+
+  const deleteFournisseur = useCallback(
+    async (id) => {
+      await executeApiCall(async () => {
+        const api = (await import("../services/api")).default;
+        return api.deleteFournisseur(id);
+      });
+      setFournisseurs((prev) => prev.filter((f) => f.id !== id));
+    },
+    [executeApiCall]
+  );
+
+  return {
+    fournisseurs,
+    loading,
+    error,
+    fetchFournisseurs,
+    createFournisseur,
+    updateFournisseur,
+    deleteFournisseur,
+    clearError,
+  };
+};

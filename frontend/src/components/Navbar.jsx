@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth.jsx';
-import { ROUTES } from '../utils/constants';
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.jsx";
+import { ROUTES } from "../utils/constants";
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -10,7 +10,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+    if (window.confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
       logout();
       navigate(ROUTES.LOGIN);
     }
@@ -34,8 +34,8 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo et nom de l'application */}
           <div className="flex items-center">
-            <Link 
-              to={ROUTES.HOME} 
+            <Link
+              to={ROUTES.HOME}
               className="flex items-center space-x-2 hover:text-blue-200 transition-colors"
               onClick={closeMenu}
             >
@@ -52,30 +52,93 @@ const Navbar = () => {
               to={ROUTES.HOME}
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActiveRoute(ROUTES.HOME)
-                  ? 'bg-blue-700 text-white'
-                  : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                  ? "bg-blue-700 text-white"
+                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
               }`}
             >
               Accueil
             </Link>
+
+            {/* Admin: CRUD Produits */}
             
-            <Link
-              to={ROUTES.PRODUCTS}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActiveRoute(ROUTES.PRODUCTS)
-                  ? 'bg-blue-700 text-white'
-                  : 'text-blue-100 hover:bg-blue-700 hover:text-white'
-              }`}
-            >
-              Produits
-            </Link>
+
+            {/* Admin: CRUD Vendeurs (Users) */}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to={ROUTES.USERS}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.USERS)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+              Vendeurs
+              </Link>
+            )}
+
+            {/* Admin: CRUD Fournisseurs */}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to={ROUTES.SUPPLIERS}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.SUPPLIERS)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                 Fournisseurs
+              </Link>
+            )}
+
+            {/* Admin: CRUD Clients */}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to={ROUTES.CLIENTS}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.CLIENTS)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                Clients
+              </Link>
+            )}
+
+            {/* Vendeur: voir Produits */}
+            {isAuthenticated && user?.role !== "admin" && (
+              <Link
+                to={ROUTES.PRODUCTS}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.PRODUCTS)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                Produits
+              </Link>
+            )}
+
+            {/* Vendeur: gérer commandes (POS) */}
+            {isAuthenticated && user?.role !== "admin" && (
+              <Link
+                to={ROUTES.POS}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.POS)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                Commandes
+              </Link>
+            )}
             
+
             <Link
               to={ROUTES.SALES}
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActiveRoute(ROUTES.SALES)
-                  ? 'bg-blue-700 text-white'
-                  : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                  ? "bg-blue-700 text-white"
+                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
               }`}
             >
               Ventes
@@ -89,12 +152,14 @@ const Navbar = () => {
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium">
-                      {user?.nom?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.nom?.charAt(0)?.toUpperCase() || "U"}
                     </span>
                   </div>
                   <div className="text-sm">
                     <div className="font-medium">{user?.nom}</div>
-                    <div className="text-blue-200 text-xs capitalize">{user?.role}</div>
+                    <div className="text-blue-200 text-xs capitalize">
+                      {user?.role}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -128,11 +193,26 @@ const Navbar = () => {
               onClick={toggleMenu}
               className="text-blue-100 hover:text-white focus:outline-none focus:text-white"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 )}
               </svg>
             </button>
@@ -148,37 +228,89 @@ const Navbar = () => {
               to={ROUTES.HOME}
               className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                 isActiveRoute(ROUTES.HOME)
-                  ? 'bg-blue-800 text-white'
-                  : 'text-blue-100 hover:bg-blue-800 hover:text-white'
+                  ? "bg-blue-800 text-white"
+                  : "text-blue-100 hover:bg-blue-800 hover:text-white"
               }`}
               onClick={closeMenu}
             >
               Accueil
             </Link>
-            
-            <Link
-              to={ROUTES.PRODUCTS}
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActiveRoute(ROUTES.PRODUCTS)
-                  ? 'bg-blue-800 text-white'
-                  : 'text-blue-100 hover:bg-blue-800 hover:text-white'
-              }`}
-              onClick={closeMenu}
-            >
-              Produits
-            </Link>
-            
-            <Link
-              to={ROUTES.SALES}
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActiveRoute(ROUTES.SALES)
-                  ? 'bg-blue-800 text-white'
-                  : 'text-blue-100 hover:bg-blue-800 hover:text-white'
-              }`}
-              onClick={closeMenu}
-            >
-              Ventes
-            </Link>
+
+            {isAuthenticated && user?.role === "admin" ? (
+              <>
+                <Link
+                  to={ROUTES.PRODUCTS}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActiveRoute(ROUTES.PRODUCTS)
+                      ? "bg-blue-800 text-white"
+                      : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Produits
+                </Link>
+                <Link
+                  to={ROUTES.USERS}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActiveRoute(ROUTES.USERS)
+                      ? "bg-blue-800 text-white"
+                      : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Vendeurs
+                </Link>
+                <Link
+                  to={ROUTES.SUPPLIERS}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActiveRoute(ROUTES.SUPPLIERS)
+                      ? "bg-blue-800 text-white"
+                      : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                  }`}
+                  onClick={closeMenu}
+                >
+                   Fournisseurs
+                </Link>
+                <Link
+                  to={ROUTES.CLIENTS}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActiveRoute(ROUTES.CLIENTS)
+                      ? "bg-blue-800 text-white"
+                      : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Clients
+                </Link>
+              </>
+            ) : (
+              isAuthenticated && (
+                <>
+                  <Link
+                    to={ROUTES.PRODUCTS}
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      isActiveRoute(ROUTES.PRODUCTS)
+                        ? "bg-blue-800 text-white"
+                        : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                    }`}
+                    onClick={closeMenu}
+                  >
+                    Produits
+                  </Link>
+                  <Link
+                    to={ROUTES.POS}
+                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      isActiveRoute(ROUTES.POS)
+                        ? "bg-blue-800 text-white"
+                        : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                    }`}
+                    onClick={closeMenu}
+                  >
+                    Commandes
+                  </Link>
+                </>
+              )
+            )}
           </div>
 
           {/* Section utilisateur mobile */}
@@ -188,12 +320,14 @@ const Navbar = () => {
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium">
-                      {user?.nom?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.nom?.charAt(0)?.toUpperCase() || "U"}
                     </span>
                   </div>
                   <div>
                     <div className="text-base font-medium">{user?.nom}</div>
-                    <div className="text-sm text-blue-200 capitalize">{user?.role}</div>
+                    <div className="text-sm text-blue-200 capitalize">
+                      {user?.role}
+                    </div>
                   </div>
                 </div>
                 <button

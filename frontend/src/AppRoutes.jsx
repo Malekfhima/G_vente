@@ -1,13 +1,24 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './hooks/useAuth.jsx';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ProduitsPage from './pages/ProduitsPage';
-import VentesPage from './pages/VentesPage';
-import { ROUTES } from './utils/constants';
+// ...existing code...
+const TestPage = () => (
+  <div style={{ padding: 40, textAlign: "center" }}>
+    <h1 style={{ color: "#3182ce" }}>Test Frontend OK</h1>
+    <p>Si tu vois ce message, le frontend fonctionne.</p>
+  </div>
+);
+<Route path="/test" element={<TestPage />} />;
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth.jsx";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
+import RegisterPage from "./pages/RegisterPage";
+import ProduitsPage from "./pages/ProduitsPage";
+import VentesPage from "./pages/VentesPage";
+import POSPage from "./pages/POSPage";
+import { ROUTES } from "./utils/constants";
+import UsersPage from "./pages/UsersPage";
+import ClientsPage from "./pages/ClientsPage";
+import FournisseursPage from "./pages/FournisseursPage";
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -68,15 +79,12 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Routes protégées avec navigation */}
+      {/* Accueil -> POS plein écran (sans Navbar) */}
       <Route
         path={ROUTES.HOME}
         element={
           <ProtectedRoute>
-            <div>
-              <Navbar />
-              <HomePage />
-            </div>
+            <POSPage />
           </ProtectedRoute>
         }
       />
@@ -84,10 +92,7 @@ const AppRoutes = () => {
         path={ROUTES.PRODUCTS}
         element={
           <ProtectedRoute>
-            <div>
-              <Navbar />
-              <ProduitsPage />
-            </div>
+            <ProduitsPage />
           </ProtectedRoute>
         }
       />
@@ -95,19 +100,49 @@ const AppRoutes = () => {
         path={ROUTES.SALES}
         element={
           <ProtectedRoute>
-            <div>
-              <Navbar />
-              <VentesPage />
-            </div>
+            <VentesPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Route par défaut - redirection vers l'accueil */}
       <Route
-        path="*"
-        element={<Navigate to={ROUTES.HOME} replace />}
+        path={ROUTES.POS}
+        element={
+          <ProtectedRoute>
+            <POSPage />
+          </ProtectedRoute>
+        }
       />
+
+      {/* Admin CRUD pages */}
+      <Route
+        path={ROUTES.USERS}
+        element={
+          <ProtectedRoute>
+            <UsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.CLIENTS}
+        element={
+          <ProtectedRoute>
+            <ClientsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.SUPPLIERS}
+        element={
+          <ProtectedRoute>
+            <FournisseursPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Route par défaut - affiche HomePage si non connecté */}
+      <Route path={ROUTES.HOME} element={<HomePage />} />
+      <Route path="*" element={<HomePage />} />
     </Routes>
   );
 };

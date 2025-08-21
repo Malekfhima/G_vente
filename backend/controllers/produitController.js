@@ -36,17 +36,18 @@ const getProduitById = async (req, res) => {
 // Créer un nouveau produit
 const createProduit = async (req, res) => {
   try {
-    const { nom, description, prix, stock, categorie } = req.body;
+    const { nom, description, prix, stock, categorie, isService } = req.body;
 
     // Vérification des champs requis
-    if (!nom || !prix || stock === undefined) {
+    if (!nom || !prix || (isService !== true && stock === undefined)) {
       return res.status(400).json({
-        message: "Nom, prix et stock sont requis",
+        message:
+          "Nom et prix sont requis. Le stock est requis pour un produit non-service",
       });
     }
 
     // Vérification que le prix et le stock sont positifs
-    if (prix <= 0 || stock < 0) {
+    if (prix <= 0 || (isService !== true && stock < 0)) {
       return res.status(400).json({
         message: "Le prix doit être positif et le stock doit être >= 0",
       });
@@ -57,7 +58,8 @@ const createProduit = async (req, res) => {
         nom,
         description,
         prix: parseFloat(prix),
-        stock: parseInt(stock),
+        stock: isService === true ? 0 : parseInt(stock),
+        isService: Boolean(isService),
         categorie,
       },
     });
@@ -76,7 +78,7 @@ const createProduit = async (req, res) => {
 const updateProduit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, description, prix, stock, categorie } = req.body;
+    const { nom, description, prix, stock, categorie, isService } = req.body;
 
     // Vérification que le produit existe
     const existingProduit = await prisma.produit.findUnique({
@@ -92,7 +94,7 @@ const updateProduit = async (req, res) => {
       return res.status(400).json({ message: "Le prix doit être positif" });
     }
 
-    if (stock !== undefined && stock < 0) {
+    if (isService !== true && stock !== undefined && stock < 0) {
       return res.status(400).json({ message: "Le stock doit être >= 0" });
     }
 
@@ -102,7 +104,13 @@ const updateProduit = async (req, res) => {
         nom,
         description,
         prix: prix !== undefined ? parseFloat(prix) : undefined,
-        stock: stock !== undefined ? parseInt(stock) : undefined,
+        stock:
+          isService === true
+            ? 0
+            : stock !== undefined
+            ? parseInt(stock)
+            : undefined,
+        isService: isService !== undefined ? Boolean(isService) : undefined,
         categorie,
       },
     });
@@ -163,10 +171,7 @@ const searchProduits = async (req, res) => {
 
     // Recherche par nom ou description (SQLite ne supporte pas mode: "insensitive")
     if (q) {
-      where.OR = [
-        { nom: { contains: q } },
-        { description: { contains: q } },
-      ];
+      where.OR = [{ nom: { contains: q } }, { description: { contains: q } }];
     }
 
     // Filtre par catégorie
@@ -201,6 +206,3 @@ module.exports = {
   deleteProduit,
   searchProduits,
 };
-
-
-

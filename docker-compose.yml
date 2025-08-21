@@ -48,7 +48,7 @@ services:
       # Utiliser le service backend comme hôte depuis le réseau docker
       VITE_API_URL: http://backend:5000/api
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
     networks:

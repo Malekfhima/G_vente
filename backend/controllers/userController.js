@@ -5,6 +5,11 @@ const config = require("../config/config");
 // Récupérer tous les utilisateurs (admin seulement)
 const getAllUsers = async (req, res) => {
   try {
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Accès réservé aux administrateurs" });
+    }
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -34,6 +39,11 @@ const getAllUsers = async (req, res) => {
 // Récupérer un utilisateur par ID (admin seulement)
 const getUserById = async (req, res) => {
   try {
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Accès réservé aux administrateurs" });
+    }
     const { id } = req.params;
     const userId = parseInt(id);
 
@@ -89,16 +99,25 @@ const getUserById = async (req, res) => {
 // Créer un nouvel utilisateur (admin seulement)
 const createUser = async (req, res) => {
   try {
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Accès réservé aux administrateurs" });
+    }
     const { email, password, nom, role = "user" } = req.body;
 
     // Vérification des champs requis
     if (!email || !password || !nom) {
-      return res.status(400).json({ message: "Email, mot de passe et nom sont requis" });
+      return res
+        .status(400)
+        .json({ message: "Email, mot de passe et nom sont requis" });
     }
 
     // Validation du rôle
     if (!["admin", "user"].includes(role)) {
-      return res.status(400).json({ message: "Rôle invalide. Doit être 'admin' ou 'user'" });
+      return res
+        .status(400)
+        .json({ message: "Rôle invalide. Doit être 'admin' ou 'user'" });
     }
 
     // Vérification si l'email existe déjà
@@ -111,7 +130,10 @@ const createUser = async (req, res) => {
     }
 
     // Hashage du mot de passe
-    const hashedPassword = await bcrypt.hash(password, config.security.bcryptRounds);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      config.security.bcryptRounds
+    );
 
     // Création de l'utilisateur
     const user = await prisma.user.create({
@@ -144,6 +166,11 @@ const createUser = async (req, res) => {
 // Mettre à jour un utilisateur (admin seulement)
 const updateUser = async (req, res) => {
   try {
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Accès réservé aux administrateurs" });
+    }
     const { id } = req.params;
     const { email, nom, role, password } = req.body;
     const userId = parseInt(id);
@@ -163,7 +190,9 @@ const updateUser = async (req, res) => {
 
     // Validation du rôle
     if (role && !["admin", "user"].includes(role)) {
-      return res.status(400).json({ message: "Rôle invalide. Doit être 'admin' ou 'user'" });
+      return res
+        .status(400)
+        .json({ message: "Rôle invalide. Doit être 'admin' ou 'user'" });
     }
 
     // Vérifier si l'email est déjà utilisé par un autre utilisateur
@@ -183,7 +212,10 @@ const updateUser = async (req, res) => {
     if (nom) updateData.nom = nom;
     if (role) updateData.role = role;
     if (password) {
-      updateData.password = await bcrypt.hash(password, config.security.bcryptRounds);
+      updateData.password = await bcrypt.hash(
+        password,
+        config.security.bcryptRounds
+      );
     }
 
     // Mise à jour de l'utilisateur
@@ -213,6 +245,11 @@ const updateUser = async (req, res) => {
 // Supprimer un utilisateur (admin seulement)
 const deleteUser = async (req, res) => {
   try {
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Accès réservé aux administrateurs" });
+    }
     const { id } = req.params;
     const userId = parseInt(id);
 
@@ -222,7 +259,9 @@ const deleteUser = async (req, res) => {
 
     // Empêcher la suppression de son propre compte
     if (userId === req.user.id) {
-      return res.status(400).json({ message: "Vous ne pouvez pas supprimer votre propre compte" });
+      return res
+        .status(400)
+        .json({ message: "Vous ne pouvez pas supprimer votre propre compte" });
     }
 
     // Vérifier si l'utilisateur existe
@@ -251,6 +290,11 @@ const deleteUser = async (req, res) => {
 // Obtenir les statistiques des utilisateurs (admin seulement)
 const getUserStats = async (req, res) => {
   try {
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Accès réservé aux administrateurs" });
+    }
     const totalUsers = await prisma.user.count();
     const adminUsers = await prisma.user.count({
       where: { role: "admin" },

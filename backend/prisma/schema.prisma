@@ -48,3 +48,23 @@ model Vente {
   @@index([userId])
   @@index([produitId])
 }
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  email     String?  @unique
+  telephone String?
+  adresse   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Fournisseur {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  email     String?  @unique
+  telephone String?
+  adresse   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
