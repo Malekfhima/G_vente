@@ -131,7 +131,16 @@ const Navbar = () => {
                 Commandes
               </Link>
             )}
-            
+            <Link
+              to={ROUTES.PRODUCTS}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActiveRoute(ROUTES.PRODUCTS)
+                  ? "bg-blue-700 text-white"
+                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
+              }`}
+            >
+              Produits
+            </Link>
 
             <Link
               to={ROUTES.SALES}

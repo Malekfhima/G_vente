@@ -139,6 +139,11 @@ class ApiService {
     return this.request(`/ventes/stats?${queryString}`);
   }
 
+  // POS - ouvrir tiroir
+  async openDrawer() {
+    return this.request(`/pos/open-drawer`, { method: "POST" });
+  }
+
   // Statistiques des utilisateurs (admin)
   async getUsersStats() {
     return this.request(`/users/stats`);

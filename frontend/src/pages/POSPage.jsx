@@ -124,9 +124,46 @@ const POSPage = () => {
     );
   };
 
-  // Impression du ticket (préparation)
-  const imprimerTicket = () => {
-    alert("Impression du ticket (fonction à compléter)");
+  // Impression du ticket (PDF côté serveur)
+  const imprimerTicket = async () => {
+    try {
+      const items = panier.map((p) => ({
+        id: p.id,
+        nom: p.nom,
+        prix: p.prix,
+        quantite: p.quantite,
+        remise: p.remise || 0,
+      }));
+      const payload = {
+        items,
+        total,
+        encaisse: montantEncaisse,
+        rendu: montantRendu,
+      };
+
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/ventes/ticket/pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Erreur génération ticket");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const win = window.open(url);
+      if (!win) {
+        // fallback download
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ticket.pdf";
+        a.click();
+      }
+    } catch (e) {
+      alert(e.message || "Erreur impression ticket");
+    }
   };
 
   // Catégories fictives
@@ -228,11 +265,11 @@ const POSPage = () => {
 
             {/* Ouvrir tiroir caisse */}
             <button
-              onClick={() => {
+              onClick={async () => {
                 try {
-                  fetch("/api/ventes", { method: "HEAD" }).finally(() => {
-                    alert("Tiroir ouvert");
-                  });
+                  const apiSvc = (await import("../services/api")).default;
+                  await apiSvc.openDrawer();
+                  alert("Tiroir ouvert");
                 } catch (e) {
                   alert("Tiroir ouvert");
                 }
@@ -376,6 +413,37 @@ const POSPage = () => {
               disabled={panier.length === 0}
             >
               Imprimer Ticket
+            </button>
+            <button
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md disabled:bg-gray-100"
+              onClick={() => {
+                // Mise en attente simple : stocker dans localStorage
+                localStorage.setItem(
+                  "pos_hold",
+                  JSON.stringify({ panier, montantEncaisse })
+                );
+                alert("Commande mise en attente");
+              }}
+              disabled={panier.length === 0}
+            >
+              Mettre en attente
+            </button>
+            <button
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+              onClick={() => {
+                const saved = localStorage.getItem("pos_hold");
+                if (!saved) return alert("Aucune commande en attente");
+                try {
+                  const { panier: p, montantEncaisse: m } = JSON.parse(saved);
+                  if (Array.isArray(p)) setPanier(p);
+                  if (typeof m === "number") setMontantEncaisse(m);
+                  alert("Commande reprise");
+                } catch (e) {
+                  alert("Erreur lors de la reprise");
+                }
+              }}
+            >
+              Reprendre
             </button>
             <button
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md disabled:bg-gray-400"

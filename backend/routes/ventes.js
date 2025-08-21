@@ -9,6 +9,7 @@ const {
   getVentesByUser,
   getVentesStats,
   exportVentesPDF,
+  generateTicketPDF,
 } = require("../controllers/venteController");
 const { authenticateToken, requireAdmin } = require("../middleware/auth");
 
@@ -18,6 +19,8 @@ router.get("/stats", authenticateToken, getVentesStats);
 router.get("/my-ventes", authenticateToken, getVentesByUser);
 // Export PDF des ventes (placer avant la route paramétrée :id)
 router.get("/export/pdf", authenticateToken, exportVentesPDF);
+// Génération d'un ticket PDF depuis un panier
+router.post("/ticket/pdf", authenticateToken, generateTicketPDF);
 router.get("/:id", authenticateToken, getVenteById);
 router.post("/", authenticateToken, createVente);
 router.put("/:id", authenticateToken, updateVente);

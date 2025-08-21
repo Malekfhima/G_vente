@@ -13,6 +13,7 @@ const venteRoutes = require("./routes/ventes");
 const userRoutes = require("./routes/users");
 const clientRoutes = require("./routes/clients");
 const fournisseurRoutes = require("./routes/fournisseurs");
+const posRoutes = require("./routes/pos");
 
 const app = express();
 const PORT = config.server.port;
@@ -61,6 +62,7 @@ app.use("/api/ventes", venteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/fournisseurs", fournisseurRoutes);
+app.use("/api/pos", posRoutes);
 
 // Middleware de gestion des erreurs 404
 app.use("*", (req, res) => {

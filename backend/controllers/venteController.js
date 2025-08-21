@@ -398,6 +398,45 @@ const exportVentesPDF = async (req, res) => {
   }
 };
 
+// Générer un ticket PDF pour un panier donné
+const generateTicketPDF = async (req, res) => {
+  try {
+    const { items, total, encaisse, rendu } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Panier vide" });
+    }
+
+    const doc = new pdf({ margin: 24 });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'inline; filename="ticket.pdf"');
+    doc.pipe(res);
+
+    doc.fontSize(14).text("Ticket de caisse", { align: "center" });
+    doc.moveDown();
+    doc.fontSize(10).text(`Date: ${new Date().toLocaleString()}`);
+    doc.moveDown(0.5);
+
+    items.forEach((item, idx) => {
+      const line = `${idx + 1}. ${item.nom} x${item.quantite}  @ ${
+        item.prix
+      }  = ${(item.prix * item.quantite - (item.remise || 0)).toFixed(2)}`;
+      doc.text(line);
+    });
+
+    doc.moveDown();
+    doc.text(`Total: ${Number(total || 0).toFixed(2)}`);
+    if (encaisse !== undefined)
+      doc.text(`Encaisse: ${Number(encaisse).toFixed(2)}`);
+    if (rendu !== undefined) doc.text(`Rendu: ${Number(rendu).toFixed(2)}`);
+
+    doc.end();
+  } catch (error) {
+    console.error("Erreur ticket PDF:", error);
+    res.status(500).json({ message: "Erreur génération ticket" });
+  }
+};
+
 module.exports = {
   getAllVentes,
   getVenteById,
@@ -407,4 +446,5 @@ module.exports = {
   getVentesByUser,
   getVentesStats,
   exportVentesPDF,
+  generateTicketPDF,
 };
