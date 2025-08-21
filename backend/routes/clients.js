@@ -17,5 +17,3 @@ router.put("/:id", requireAdmin, updateClient);
 router.delete("/:id", requireAdmin, deleteClient);
 
 module.exports = router;
-
-

@@ -17,5 +17,3 @@ router.put("/:id", requireAdmin, updateFournisseur);
 router.delete("/:id", requireAdmin, deleteFournisseur);
 
 module.exports = router;
-
-

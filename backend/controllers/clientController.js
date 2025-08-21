@@ -70,5 +70,3 @@ module.exports = {
   updateClient,
   deleteClient,
 };
-
-

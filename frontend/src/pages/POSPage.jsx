@@ -47,7 +47,7 @@ const POSPage = () => {
       return;
     }
     if (
-      !produit.isService &&
+      !isServiceProduct(produit) &&
       produit.stock !== undefined &&
       quantite > produit.stock
     ) {
@@ -62,7 +62,7 @@ const POSPage = () => {
   // Ajouter un produit au panier par bouton
   const ajouterAuPanier = (produit) => {
     if (
-      !produit.isService &&
+      !isServiceProduct(produit) &&
       produit.stock !== undefined &&
       produit.stock <= 0
     ) {
@@ -139,6 +139,18 @@ const POSPage = () => {
     "SCOLARITE",
   ];
 
+  const serviceCategories = new Set([
+    "SERVICES",
+    "IMPRESSION",
+    "PHOTOCOPIE",
+    "PLASTIFICATION",
+    "RELIURE",
+    "SCOLARITE",
+  ]);
+
+  const isServiceProduct = (p) =>
+    p?.isService === true || serviceCategories.has(p?.categorie);
+
   // Logout
 
   const magasinNom = "Magasin Principal";
@@ -152,7 +164,12 @@ const POSPage = () => {
     }).format(val || 0);
 
   const produitsFiltres = produits
-    .filter((p) => !filtreCategorie || p.categorie === filtreCategorie)
+    .filter(
+      (p) =>
+        !filtreCategorie ||
+        (p.categorie &&
+          p.categorie.toUpperCase() === filtreCategorie.toUpperCase())
+    )
     .filter(
       (p) =>
         !recherche ||
@@ -207,6 +224,22 @@ const POSPage = () => {
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
             >
               Entrée
+            </button>
+
+            {/* Ouvrir tiroir caisse */}
+            <button
+              onClick={() => {
+                try {
+                  fetch("/api/ventes", { method: "HEAD" }).finally(() => {
+                    alert("Tiroir ouvert");
+                  });
+                } catch (e) {
+                  alert("Tiroir ouvert");
+                }
+              }}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md"
+            >
+              Tiroir
             </button>
 
             <input
