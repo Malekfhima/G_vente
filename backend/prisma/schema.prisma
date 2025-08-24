@@ -28,6 +28,7 @@ model Produit {
   prix        Float
   stock       Int      @default(0)
   categorie   String?
+  isService   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   ventes      Vente[]

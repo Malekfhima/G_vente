@@ -65,6 +65,7 @@ async function main() {
       prix: 0.2,
       stock: 0,
       categorie: "IMPRESSION",
+      isService: true,
     },
     {
       nom: "Impression Couleur - A4",
@@ -72,6 +73,7 @@ async function main() {
       prix: 0.8,
       stock: 0,
       categorie: "IMPRESSION",
+      isService: true,
     },
     {
       nom: "Photocopie N/B - A4",
@@ -79,6 +81,7 @@ async function main() {
       prix: 0.15,
       stock: 0,
       categorie: "PHOTOCOPIE",
+      isService: true,
     },
     {
       nom: "Photocopie Couleur - A4",
@@ -86,6 +89,7 @@ async function main() {
       prix: 0.7,
       stock: 0,
       categorie: "PHOTOCOPIE",
+      isService: true,
     },
     // Plastification / Reliure
     {
@@ -94,6 +98,7 @@ async function main() {
       prix: 2.5,
       stock: 0,
       categorie: "PLASTIFICATION",
+      isService: true,
     },
     {
       nom: "Plastification A3",
@@ -101,6 +106,7 @@ async function main() {
       prix: 4.0,
       stock: 0,
       categorie: "PLASTIFICATION",
+      isService: true,
     },
     {
       nom: "Reliure Spirale (jusqu'à 50p)",
@@ -108,6 +114,7 @@ async function main() {
       prix: 3.0,
       stock: 0,
       categorie: "RELIURE",
+      isService: true,
     },
     {
       nom: "Reliure Spirale (jusqu'à 100p)",
@@ -115,6 +122,7 @@ async function main() {
       prix: 5.0,
       stock: 0,
       categorie: "RELIURE",
+      isService: true,
     },
     // Scolarité
     {
@@ -123,6 +131,7 @@ async function main() {
       prix: 15.0,
       stock: 0,
       categorie: "SCOLARITE",
+      isService: true,
     },
     {
       nom: "Attestation / Certificat",
@@ -130,6 +139,7 @@ async function main() {
       prix: 2.0,
       stock: 0,
       categorie: "SCOLARITE",
+      isService: true,
     },
   ];
 
@@ -145,19 +155,19 @@ async function main() {
     console.log(`✅ Produit créé: ${produit.nom}`);
   }
 
-  // Création de quelques ventes de test
+  // Création de quelques ventes de test (après avoir créé les produits)
   const ventes = [
     {
       quantite: 2,
-      prixTotal: 39.98,
+      prixTotal: 0.3, // 2 x 0.15 (Photocopie N/B)
       userId: vendeur.id,
-      produitId: 3, // T-shirt
+      produitId: 3, // Photocopie N/B - A4
     },
     {
       quantite: 1,
-      prixTotal: 29.99,
+      prixTotal: 2.5, // 1 x 2.5 (Plastification A4)
       userId: vendeur.id,
-      produitId: 7, // Ballon de football
+      produitId: 5, // Plastification A4
     },
   ];
 

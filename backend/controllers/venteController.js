@@ -89,8 +89,7 @@ const createVente = async (req, res) => {
       return res.status(404).json({ message: "Produit non trouvé" });
     }
 
-    const isService =
-      produit.isService === true || produit.categorie === "SERVICES";
+    const isService = produit.isService === true;
 
     // Vérification du stock disponible (sauf pour services)
     if (!isService && produit.stock < quantite) {
@@ -173,13 +172,15 @@ const updateVente = async (req, res) => {
 
     // Calcul de la différence de quantité
     const differenceQuantite = quantite - existingVente.quantite;
-    const nouveauStock = existingVente.produit.stock - differenceQuantite;
 
-    // Vérification du stock disponible
-    if (nouveauStock < 0) {
-      return res.status(400).json({
-        message: `Stock insuffisant pour cette modification. Disponible: ${existingVente.produit.stock}`,
-      });
+    // Vérification du stock disponible (sauf pour services)
+    if (!existingVente.produit.isService) {
+      const nouveauStock = existingVente.produit.stock - differenceQuantite;
+      if (nouveauStock < 0) {
+        return res.status(400).json({
+          message: `Stock insuffisant pour cette modification. Disponible: ${existingVente.produit.stock}`,
+        });
+      }
     }
 
     // Calcul du nouveau prix total
@@ -209,11 +210,14 @@ const updateVente = async (req, res) => {
         },
       });
 
-      // Mise à jour du stock
-      await tx.produit.update({
-        where: { id: existingVente.produitId },
-        data: { stock: nouveauStock },
-      });
+      // Mise à jour du stock (sauf pour services)
+      if (!existingVente.produit.isService) {
+        const nouveauStock = existingVente.produit.stock - differenceQuantite;
+        await tx.produit.update({
+          where: { id: existingVente.produitId },
+          data: { stock: nouveauStock },
+        });
+      }
 
       return vente;
     });
@@ -250,13 +254,15 @@ const deleteVente = async (req, res) => {
         where: { id: parseInt(id) },
       });
 
-      // Restauration du stock
-      await tx.produit.update({
-        where: { id: existingVente.produitId },
-        data: {
-          stock: existingVente.produit.stock + existingVente.quantite,
-        },
-      });
+      // Restauration du stock (sauf pour services)
+      if (!existingVente.produit.isService) {
+        await tx.produit.update({
+          where: { id: existingVente.produitId },
+          data: {
+            stock: existingVente.produit.stock + existingVente.quantite,
+          },
+        });
+      }
     });
 
     res.json({ message: "Vente supprimée avec succès" });

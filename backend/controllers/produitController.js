@@ -39,17 +39,28 @@ const createProduit = async (req, res) => {
     const { nom, description, prix, stock, categorie, isService } = req.body;
 
     // Vérification des champs requis
-    if (!nom || !prix || (isService !== true && stock === undefined)) {
+    if (!nom || !prix) {
       return res.status(400).json({
-        message:
-          "Nom et prix sont requis. Le stock est requis pour un produit non-service",
+        message: "Nom et prix sont requis",
       });
     }
 
-    // Vérification que le prix et le stock sont positifs
-    if (prix <= 0 || (isService !== true && stock < 0)) {
+    // Vérification que le prix est positif
+    if (prix <= 0) {
       return res.status(400).json({
-        message: "Le prix doit être positif et le stock doit être >= 0",
+        message: "Le prix doit être positif",
+      });
+    }
+
+    // Pour les services, le stock est toujours 0
+    // Pour les produits physiques, le stock doit être défini et >= 0
+    let stockValue = stock;
+    if (isService === true) {
+      stockValue = 0;
+    } else if (stock === undefined || stock < 0) {
+      return res.status(400).json({
+        message:
+          "Le stock doit être défini et >= 0 pour les produits physiques",
       });
     }
 
@@ -58,7 +69,7 @@ const createProduit = async (req, res) => {
         nom,
         description,
         prix: parseFloat(prix),
-        stock: isService === true ? 0 : parseInt(stock),
+        stock: parseInt(stockValue),
         isService: Boolean(isService),
         categorie,
       },
@@ -94,7 +105,11 @@ const updateProduit = async (req, res) => {
       return res.status(400).json({ message: "Le prix doit être positif" });
     }
 
-    if (isService !== true && stock !== undefined && stock < 0) {
+    // Gestion du stock selon le type de produit
+    let stockValue = stock;
+    if (isService === true) {
+      stockValue = 0; // Les services ont toujours un stock de 0
+    } else if (stock !== undefined && stock < 0) {
       return res.status(400).json({ message: "Le stock doit être >= 0" });
     }
 
@@ -104,12 +119,7 @@ const updateProduit = async (req, res) => {
         nom,
         description,
         prix: prix !== undefined ? parseFloat(prix) : undefined,
-        stock:
-          isService === true
-            ? 0
-            : stock !== undefined
-            ? parseInt(stock)
-            : undefined,
+        stock: stockValue !== undefined ? parseInt(stockValue) : undefined,
         isService: isService !== undefined ? Boolean(isService) : undefined,
         categorie,
       },
