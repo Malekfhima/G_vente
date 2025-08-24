@@ -34,6 +34,22 @@ model Produit {
   ventes      Vente[]
 }
 
+model Zone {
+  id           Int           @id @default(autoincrement())
+  nom          String        @unique
+  description  String?
+  adresse      String?
+  ville        String?
+  codePostal   String?
+  pays         String        @default("Tunisie")
+  actif        Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  ventes       Vente[]
+  clients      Client[]
+  fournisseurs Fournisseur[]
+}
+
 model Vente {
   id        Int      @id @default(autoincrement())
   quantite  Int
@@ -41,13 +57,16 @@ model Vente {
   date      DateTime @default(now())
   userId    Int
   produitId Int
+  zoneId    Int?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   produit   Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  zone      Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([produitId])
+  @@index([zoneId])
 }
 
 model Client {
@@ -56,6 +75,8 @@ model Client {
   email     String?  @unique
   telephone String?
   adresse   String?
+  zoneId    Int?
+  zone      Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -66,6 +87,8 @@ model Fournisseur {
   email     String?  @unique
   telephone String?
   adresse   String?
+  zoneId    Int?
+  zone      Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

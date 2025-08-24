@@ -14,6 +14,7 @@ const userRoutes = require("./routes/users");
 const clientRoutes = require("./routes/clients");
 const fournisseurRoutes = require("./routes/fournisseurs");
 const posRoutes = require("./routes/pos");
+const zoneRoutes = require("./routes/zones");
 
 const app = express();
 const PORT = config.server.port;
@@ -51,6 +52,7 @@ app.get("/", (req, res) => {
       users: "/api/users",
       clients: "/api/clients",
       fournisseurs: "/api/fournisseurs",
+      zones: "/api/zones",
     },
   });
 });
@@ -63,6 +65,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/fournisseurs", fournisseurRoutes);
 app.use("/api/pos", posRoutes);
+app.use("/api/zones", zoneRoutes);
 
 // Middleware de gestion des erreurs 404
 app.use("*", (req, res) => {

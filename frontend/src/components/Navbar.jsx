@@ -60,7 +60,6 @@ const Navbar = () => {
             </Link>
 
             {/* Admin: CRUD Produits */}
-            
 
             {/* Admin: CRUD Vendeurs (Users) */}
             {isAuthenticated && user?.role === "admin" && (
@@ -72,7 +71,7 @@ const Navbar = () => {
                     : "text-blue-100 hover:bg-blue-700 hover:text-white"
                 }`}
               >
-              Vendeurs
+                Vendeurs
               </Link>
             )}
 
@@ -86,7 +85,7 @@ const Navbar = () => {
                     : "text-blue-100 hover:bg-blue-700 hover:text-white"
                 }`}
               >
-                 Fournisseurs
+                Fournisseurs
               </Link>
             )}
 
@@ -101,6 +100,34 @@ const Navbar = () => {
                 }`}
               >
                 Clients
+              </Link>
+            )}
+
+            {/* Admin: CRUD Services */}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to={ROUTES.SERVICES}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.SERVICES)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                Services
+              </Link>
+            )}
+
+            {/* Admin: CRUD Zones */}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to={ROUTES.ZONES}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute(ROUTES.ZONES)
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                Zones
               </Link>
             )}
 
@@ -278,7 +305,7 @@ const Navbar = () => {
                   }`}
                   onClick={closeMenu}
                 >
-                   Fournisseurs
+                  Fournisseurs
                 </Link>
                 <Link
                   to={ROUTES.CLIENTS}
@@ -290,6 +317,28 @@ const Navbar = () => {
                   onClick={closeMenu}
                 >
                   Clients
+                </Link>
+                <Link
+                  to={ROUTES.SERVICES}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActiveRoute(ROUTES.SERVICES)
+                      ? "bg-blue-800 text-white"
+                      : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Services
+                </Link>
+                <Link
+                  to={ROUTES.ZONES}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActiveRoute(ROUTES.ZONES)
+                      ? "bg-blue-800 text-white"
+                      : "text-blue-100 hover:bg-blue-800 hover:text-white"
+                  }`}
+                  onClick={closeMenu}
+                >
+                  Zones
                 </Link>
               </>
             ) : (

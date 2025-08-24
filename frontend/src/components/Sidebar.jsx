@@ -61,6 +61,14 @@ const Sidebar = () => {
         {isAdmin && (
           <>
             <Link
+              to={ROUTES.SERVICES}
+              className={`block px-3 py-2 rounded ${
+                isActive(ROUTES.SERVICES) ? "bg-gray-800" : "hover:bg-gray-800"
+              }`}
+            >
+              Services
+            </Link>
+            <Link
               to={ROUTES.USERS}
               className={`block px-3 py-2 rounded ${
                 isActive(ROUTES.USERS) ? "bg-gray-800" : "hover:bg-gray-800"

@@ -463,13 +463,13 @@ const POSPage = () => {
           </div>
 
           {/* Catégories */}
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-6">
+            <div className="grid grid-cols-2 gap-2">
               <button
-                className={`px-3 py-1 rounded ${
+                className={`px-3 py-2 rounded text-center font-medium text-white transition-all ${
                   !filtreCategorie
-                    ? "bg-lime-600 text-white"
-                    : "bg-gray-100 text-gray-700"
+                    ? "bg-gradient-to-b from-blue-400 to-blue-600 shadow-md"
+                    : "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600"
                 }`}
                 onClick={() => setFiltreCategorie("")}
               >
@@ -478,10 +478,10 @@ const POSPage = () => {
               {categories.map((cat) => (
                 <button
                   key={cat}
-                  className={`px-3 py-1 rounded ${
+                  className={`px-3 py-2 rounded text-center font-medium text-white transition-all ${
                     filtreCategorie === cat
-                      ? "bg-lime-600 text-white"
-                      : "bg-gray-100 text-gray-700"
+                      ? "bg-gradient-to-b from-blue-400 to-blue-600 shadow-md"
+                      : "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600"
                   }`}
                   onClick={() => setFiltreCategorie(cat)}
                 >
@@ -492,24 +492,49 @@ const POSPage = () => {
           </div>
 
           {/* Produits */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-2 overflow-y-auto flex-1">
             {loading ? (
-              <span>Chargement...</span>
+              <span className="col-span-2 text-center text-gray-600">
+                Chargement...
+              </span>
             ) : error ? (
-              <span className="text-red-600">{error}</span>
+              <span className="col-span-2 text-center text-red-600">
+                {error}
+              </span>
             ) : (
-              produitsFiltres.map((prod) => (
-                <button
-                  key={prod.id}
-                  className="bg-sky-500 hover:bg-sky-600 text-white px-3 py-2 rounded"
-                  onClick={() => ajouterAuPanier(prod)}
-                >
-                  <div className="font-medium truncate">{prod.nom}</div>
-                  <div className="text-xs text-sky-100">
-                    {formatTND(prod.prix)}
-                  </div>
-                </button>
-              ))
+              produitsFiltres.map((prod, index) => {
+                // Alternate colors for products: blue gradient, green, pink, blue gradient, etc.
+                const colorClass = (() => {
+                  const colorIndex = index % 4;
+                  switch (colorIndex) {
+                    case 0:
+                      return "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600 text-white";
+                    case 1:
+                      return "bg-lime-500 hover:bg-lime-600 text-white";
+                    case 2:
+                      return "bg-pink-500 hover:bg-pink-600 text-white";
+                    case 3:
+                      return "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600 text-white";
+                    default:
+                      return "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600 text-white";
+                  }
+                })();
+
+                return (
+                  <button
+                    key={prod.id}
+                    className={`${colorClass} px-3 py-2 rounded text-center transition-all shadow-sm hover:shadow-md`}
+                    onClick={() => ajouterAuPanier(prod)}
+                  >
+                    <div className="font-medium truncate text-sm">
+                      {prod.nom}
+                    </div>
+                    <div className="text-xs opacity-90 mt-1">
+                      {formatTND(prod.prix)}
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>

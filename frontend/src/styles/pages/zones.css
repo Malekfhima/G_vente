@@ -1,0 +1,243 @@
+/* Styles pour la page des zones */
+
+.zones-header {
+  @apply mb-8;
+}
+
+.zone-card {
+  @apply bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-200;
+}
+
+.zone-icon {
+  @apply w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center;
+}
+
+.zone-name {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.zone-id {
+  @apply text-sm text-gray-500;
+}
+
+.zone-location {
+  @apply text-sm text-gray-900;
+}
+
+.zone-location-secondary {
+  @apply text-sm text-gray-500;
+}
+
+.zone-stats {
+  @apply text-sm text-gray-900 font-medium;
+}
+
+.zone-rentability {
+  @apply text-sm text-gray-900 font-medium;
+}
+
+.zone-rentability-subtitle {
+  @apply text-xs text-gray-500;
+}
+
+.zone-status {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.zone-status-active {
+  @apply bg-green-100 text-green-800;
+}
+
+.zone-status-inactive {
+  @apply bg-red-100 text-red-800;
+}
+
+.zone-actions {
+  @apply flex space-x-2;
+}
+
+.zone-form {
+  @apply bg-white rounded-lg shadow p-6 mb-6;
+}
+
+.zone-toolbar {
+  @apply bg-white rounded-lg shadow p-6 mb-6;
+}
+
+.zone-table {
+  @apply bg-white rounded-lg shadow overflow-hidden;
+}
+
+.zone-stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8;
+}
+
+.zone-stats-card {
+  @apply bg-white rounded-lg shadow p-6;
+}
+
+.zone-stats-icon {
+  @apply p-2 rounded-lg;
+}
+
+.zone-stats-icon-blue {
+  @apply bg-blue-100;
+}
+
+.zone-stats-icon-green {
+  @apply bg-green-100;
+}
+
+.zone-stats-icon-purple {
+  @apply bg-purple-100;
+}
+
+.zone-stats-icon-yellow {
+  @apply bg-yellow-100;
+}
+
+.zone-stats-icon-svg {
+  @apply w-6 h-6;
+}
+
+.zone-stats-icon-svg-blue {
+  @apply text-blue-600;
+}
+
+.zone-stats-icon-svg-green {
+  @apply text-green-600;
+}
+
+.zone-stats-icon-svg-purple {
+  @apply text-purple-600;
+}
+
+.zone-stats-icon-svg-yellow {
+  @apply text-yellow-600;
+}
+
+.zone-stats-content {
+  @apply ml-4;
+}
+
+.zone-stats-label {
+  @apply text-sm font-medium text-gray-600;
+}
+
+.zone-stats-value {
+  @apply text-2xl font-semibold text-gray-900;
+}
+
+.top-zones-section {
+  @apply bg-white rounded-lg shadow p-6 mb-8;
+}
+
+.top-zones-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4;
+}
+
+.top-zone-card {
+  @apply text-center p-4 border rounded-lg;
+}
+
+.top-zone-rank {
+  @apply text-2xl font-bold text-blue-600 mb-2;
+}
+
+.top-zone-name {
+  @apply font-semibold text-gray-900 mb-1;
+}
+
+.top-zone-city {
+  @apply text-sm text-gray-600 mb-2;
+}
+
+.top-zone-rentability {
+  @apply text-lg font-bold text-green-600;
+}
+
+.top-zone-subtitle {
+  @apply text-xs text-gray-500;
+}
+
+.period-selector {
+  @apply bg-white rounded-lg shadow p-4 mb-6;
+}
+
+.period-selector-content {
+  @apply flex items-center space-x-4;
+}
+
+.period-selector-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.period-selector-select {
+  @apply border border-gray-300 rounded-md px-3 py-2;
+}
+
+/* États de chargement et d'erreur */
+.zone-loading {
+  @apply p-8 text-center;
+}
+
+.zone-loading-spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4;
+}
+
+.zone-loading-text {
+  @apply text-gray-600;
+}
+
+.zone-error {
+  @apply p-8 text-center;
+}
+
+.zone-error-text {
+  @apply text-red-600 mb-4;
+}
+
+.zone-error-retry {
+  @apply text-blue-600 hover:text-blue-800;
+}
+
+.zone-empty {
+  @apply p-8 text-center;
+}
+
+.zone-empty-text {
+  @apply text-gray-600 mb-4;
+}
+
+.zone-empty-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .zone-stats-grid {
+    @apply grid-cols-1 md:grid-cols-2;
+  }
+
+  .top-zones-grid {
+    @apply grid-cols-1 md:grid-cols-2;
+  }
+
+  .zone-form-grid {
+    @apply grid-cols-1;
+  }
+}
+
+@media (max-width: 640px) {
+  .zone-stats-grid {
+    @apply grid-cols-1;
+  }
+
+  .top-zones-grid {
+    @apply grid-cols-1;
+  }
+
+  .period-selector-content {
+    @apply flex-col items-start space-y-2;
+  }
+}

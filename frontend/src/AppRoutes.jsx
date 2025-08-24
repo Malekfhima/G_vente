@@ -19,6 +19,9 @@ import { ROUTES } from "./utils/constants";
 import UsersPage from "./pages/UsersPage";
 import ClientsPage from "./pages/ClientsPage";
 import FournisseursPage from "./pages/FournisseursPage";
+import ServicesPage from "./pages/ServicesPage";
+import ZonesPage from "./pages/ZonesPage";
+import AdminRoute from "./components/AdminRoute";
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -94,6 +97,22 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <ProduitsPage />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.SERVICES}
+        element={
+          <AdminRoute>
+            <ServicesPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path={ROUTES.ZONES}
+        element={
+          <AdminRoute>
+            <ZonesPage />
+          </AdminRoute>
         }
       />
       <Route

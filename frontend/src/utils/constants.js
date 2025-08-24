@@ -44,6 +44,12 @@ export const MESSAGES = {
     CREATE_PRODUCT: "Produit créé avec succès",
     UPDATE_PRODUCT: "Produit mis à jour avec succès",
     DELETE_PRODUCT: "Produit supprimé avec succès",
+    CREATE_SERVICE: "Service créé avec succès",
+    UPDATE_SERVICE: "Service mis à jour avec succès",
+    DELETE_SERVICE: "Service supprimé avec succès",
+    CREATE_ZONE: "Zone créée avec succès",
+    UPDATE_ZONE: "Zone mise à jour avec succès",
+    DELETE_ZONE: "Zone supprimée avec succès",
     CREATE_SALE: "Vente créée avec succès",
     UPDATE_SALE: "Vente mise à jour avec succès",
     DELETE_SALE: "Vente supprimée avec succès",
@@ -63,6 +69,8 @@ export const MESSAGES = {
   // Messages de confirmation
   CONFIRM: {
     DELETE_PRODUCT: "Êtes-vous sûr de vouloir supprimer ce produit ?",
+    DELETE_SERVICE: "Êtes-vous sûr de vouloir supprimer ce service ?",
+    DELETE_ZONE: "Êtes-vous sûr de vouloir supprimer cette zone ?",
     DELETE_SALE: "Êtes-vous sûr de vouloir supprimer cette vente ?",
     LOGOUT: "Êtes-vous sûr de vouloir vous déconnecter ?",
   },
@@ -104,6 +112,8 @@ export const ROUTES = {
   REGISTER: "/register",
   PRODUCTS: "/produits",
   SALES: "/ventes",
+  SERVICES: "/services",
+  ZONES: "/zones",
   USERS: "/users",
   CLIENTS: "/clients",
   SUPPLIERS: "/fournisseurs",
@@ -121,6 +131,18 @@ export const ACTIONS = {
 // Constantes pour les permissions
 export const PERMISSIONS = {
   PRODUCTS: {
+    CREATE: [USER_ROLES.ADMIN],
+    UPDATE: [USER_ROLES.ADMIN],
+    DELETE: [USER_ROLES.ADMIN],
+    READ: [USER_ROLES.ADMIN, USER_ROLES.USER],
+  },
+  SERVICES: {
+    CREATE: [USER_ROLES.ADMIN],
+    UPDATE: [USER_ROLES.ADMIN],
+    DELETE: [USER_ROLES.ADMIN],
+    READ: [USER_ROLES.ADMIN, USER_ROLES.USER],
+  },
+  ZONES: {
     CREATE: [USER_ROLES.ADMIN],
     UPDATE: [USER_ROLES.ADMIN],
     DELETE: [USER_ROLES.ADMIN],
