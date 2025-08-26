@@ -119,3 +119,4 @@ const VendeurList = ({ vendeurs, onEdit, onDelete }) => {
 };
 
 export default VendeurList;
+
