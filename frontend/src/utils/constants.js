@@ -112,6 +112,7 @@ export const ROUTES = {
   REGISTER: "/register",
   PRODUCTS: "/produits",
   SALES: "/ventes",
+  POS: "/pos",
   SERVICES: "/services",
   ZONES: "/zones",
   USERS: "/users",

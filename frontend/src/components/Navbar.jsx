@@ -117,54 +117,32 @@ const Navbar = () => {
               </Link>
             )}
 
-            {/* Vendeur: voir Produits */}
-            {isAuthenticated && user?.role !== "admin" && (
-              <Link
-                to={ROUTES.PRODUCTS}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActiveRoute(ROUTES.PRODUCTS)
-                    ? "bg-blue-700 text-white"
-                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
-                }`}
-              >
-                Produits
-              </Link>
-            )}
+            {/* Navigation pour tous les utilisateurs authentifiés */}
+            {isAuthenticated && (
+              <>
+                <Link
+                  to={ROUTES.PRODUCTS}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActiveRoute(ROUTES.PRODUCTS)
+                      ? "bg-blue-700 text-white"
+                      : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                  }`}
+                >
+                  Produits
+                </Link>
 
-            {/* Vendeur: gérer commandes (POS) */}
-            {isAuthenticated && user?.role !== "admin" && (
-              <Link
-                to={ROUTES.POS}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActiveRoute(ROUTES.POS)
-                    ? "bg-blue-700 text-white"
-                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
-                }`}
-              >
-                Commandes
-              </Link>
+                <Link
+                  to={ROUTES.SALES}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActiveRoute(ROUTES.SALES)
+                      ? "bg-blue-700 text-white"
+                      : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                  }`}
+                >
+                  Ventes
+                </Link>
+              </>
             )}
-            <Link
-              to={ROUTES.PRODUCTS}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActiveRoute(ROUTES.PRODUCTS)
-                  ? "bg-blue-700 text-white"
-                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
-              }`}
-            >
-              Produits
-            </Link>
-
-            <Link
-              to={ROUTES.SALES}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActiveRoute(ROUTES.SALES)
-                  ? "bg-blue-700 text-white"
-                  : "text-blue-100 hover:bg-blue-700 hover:text-white"
-              }`}
-            >
-              Ventes
-            </Link>
           </div>
 
           {/* Section utilisateur - Desktop */}
@@ -183,7 +161,7 @@ const Navbar = () => {
                   <div className="text-sm">
                     <div className="font-medium">{user?.nom}</div>
                     <div className="text-blue-200 text-xs capitalize">
-                      {user?.role}
+                      {user?.role === "user" ? "Vendeur" : user?.role}
                     </div>
                   </div>
                 </Link>
@@ -346,15 +324,15 @@ const Navbar = () => {
                     Produits
                   </Link>
                   <Link
-                    to={ROUTES.POS}
+                    to={ROUTES.SALES}
                     className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                      isActiveRoute(ROUTES.POS)
+                      isActiveRoute(ROUTES.SALES)
                         ? "bg-blue-800 text-white"
                         : "text-blue-100 hover:bg-blue-800 hover:text-white"
                     }`}
                     onClick={closeMenu}
                   >
-                    Commandes
+                    Ventes
                   </Link>
                 </>
               )

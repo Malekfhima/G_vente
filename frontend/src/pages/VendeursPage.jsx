@@ -13,7 +13,7 @@ const VendeursPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { user } = useAuth();
 
-  const fetchUsers = async (search = "") => {
+  const fetchVendeurs = async (search = "") => {
     try {
       setLoading(true);
       setError(null);
@@ -75,7 +75,7 @@ const VendeursPage = () => {
 
   const handleCreateVendeur = async (vendeurData) => {
     try {
-      const response = await apiService.request("/users", {
+      const response = await apiService.request("/vendeurs", {
         method: "POST",
         body: JSON.stringify(vendeurData),
       });
@@ -135,15 +135,10 @@ const VendeursPage = () => {
   };
 
   const handleSubmit = async (vendeurData) => {
-    try {
-      if (editingVendeur) {
-        await handleUpdateVendeur(vendeurData);
-      } else {
-        await handleCreateVendeur(vendeurData);
-      }
-    } catch (error) {
-      // L'erreur sera gérée par le formulaire
-      throw error;
+    if (editingVendeur) {
+      await handleUpdateVendeur(vendeurData);
+    } else {
+      await handleCreateVendeur(vendeurData);
     }
   };
 
