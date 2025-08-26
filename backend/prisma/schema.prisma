@@ -28,6 +28,7 @@ model Produit {
   prix        Float
   stock       Int      @default(0)
   categorie   String?
+  codeBarre   String?  @unique
   isService   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -51,22 +52,32 @@ model Zone {
 }
 
 model Vente {
-  id        Int      @id @default(autoincrement())
-  quantite  Int
-  prixTotal Float
-  date      DateTime @default(now())
-  userId    Int
-  produitId Int
-  zoneId    Int?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  produit   Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
-  zone      Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  quantite      Int
+  prixTotal     Float
+  date          DateTime @default(now())
+  userId        Int
+  produitId     Int
+  zoneId        Int?
+  transactionId String   @default(cuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  produit       Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  zone          Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([userId])
   @@index([produitId])
   @@index([zoneId])
+  @@index([transactionId])
+}
+
+/// Compteur de tickets par jour (réinitialisé chaque nouvelle journée)
+model TicketCounter {
+  id        Int      @id @default(autoincrement())
+  date      String   @unique // format YYYY-MM-DD
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
 }
 
 model Client {

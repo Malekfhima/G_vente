@@ -17,10 +17,12 @@ import VentesPage from "./pages/VentesPage";
 import POSPage from "./pages/POSPage";
 import { ROUTES } from "./utils/constants";
 import UsersPage from "./pages/UsersPage";
+import VendeursPage from "./pages/VendeursPage";
 import ClientsPage from "./pages/ClientsPage";
 import FournisseursPage from "./pages/FournisseursPage";
 import ServicesPage from "./pages/ServicesPage";
 import ZonesPage from "./pages/ZonesPage";
+import ProfilePage from "./pages/ProfilePage";
 import AdminRoute from "./components/AdminRoute";
 
 // Composant pour les routes protégées
@@ -116,6 +118,15 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path={ROUTES.SALES}
         element={
           <ProtectedRoute>
@@ -139,6 +150,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <UsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/vendeurs"
+        element={
+          <ProtectedRoute>
+            <VendeursPage />
           </ProtectedRoute>
         }
       />

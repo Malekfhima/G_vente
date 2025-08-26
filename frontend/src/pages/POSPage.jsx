@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 
 import { useAuth } from "../hooks/useAuth";
@@ -11,6 +11,8 @@ const POSPage = () => {
   const [codeArticle, setCodeArticle] = useState("");
   const [quantite, setQuantite] = useState(1);
   const [heure, setHeure] = useState(new Date().toLocaleTimeString());
+  const [ticketNumber, setTicketNumber] = useState(1);
+  const lastDateRef = useRef(new Date().toISOString().slice(0, 10));
   const [filtreCategorie, setFiltreCategorie] = useState("");
   const [recherche, setRecherche] = useState("");
   const { user } = useAuth();
@@ -27,8 +29,47 @@ const POSPage = () => {
       }
     };
     fetchProduits();
+    // Initialiser le compteur de tickets depuis localStorage (par jour)
+    const initTicketCounter = () => {
+      const todayISO = new Date().toISOString().slice(0, 10);
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem("pos_ticket_counter") || "null"
+        );
+        if (
+          saved &&
+          saved.date === todayISO &&
+          typeof saved.count === "number"
+        ) {
+          setTicketNumber(saved.count + 1);
+        } else {
+          setTicketNumber(1);
+        }
+      } catch (_) {
+        /* ignore */
+        setTicketNumber(1);
+      }
+      lastDateRef.current = todayISO;
+    };
+    initTicketCounter();
+
     const timer = setInterval(() => {
-      setHeure(new Date().toLocaleTimeString());
+      const now = new Date();
+      setHeure(now.toLocaleTimeString());
+      // Réinitialiser le compteur à minuit (changement de jour)
+      const todayISO = now.toISOString().slice(0, 10);
+      if (todayISO !== lastDateRef.current) {
+        lastDateRef.current = todayISO;
+        try {
+          localStorage.setItem(
+            "pos_ticket_counter",
+            JSON.stringify({ date: todayISO, count: 0 })
+          );
+        } catch (_) {
+          /* ignore */
+        }
+        setTicketNumber(1);
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -94,6 +135,37 @@ const POSPage = () => {
   // Calcul du rendu
   const montantRendu = montantEncaisse > 0 ? montantEncaisse - total : 0;
 
+  // Incrémente le compteur journalier et prépare le prochain numéro à afficher
+  const incrementDailyTicketCounter = () => {
+    const todayISO = new Date().toISOString().slice(0, 10);
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem("pos_ticket_counter") || "null"
+      );
+      const newCount =
+        saved && saved.date === todayISO && typeof saved.count === "number"
+          ? saved.count + 1
+          : 1;
+      localStorage.setItem(
+        "pos_ticket_counter",
+        JSON.stringify({ date: todayISO, count: newCount })
+      );
+      setTicketNumber(newCount + 1);
+      lastDateRef.current = todayISO;
+    } catch (_) {
+      try {
+        localStorage.setItem(
+          "pos_ticket_counter",
+          JSON.stringify({ date: todayISO, count: 1 })
+        );
+      } catch (_) {
+        /* ignore */
+      }
+      setTicketNumber(2);
+      lastDateRef.current = todayISO;
+    }
+  };
+
   // Valider la vente et mettre à jour le stock
   const payer = async () => {
     if (panier.length === 0) return;
@@ -108,6 +180,8 @@ const POSPage = () => {
       setMontantEncaisse(0);
       const list = await api.getProduits();
       setProduits(list);
+      // Passer au prochain numéro de ticket après l'encaissement
+      incrementDailyTicketCounter();
     } catch (err) {
       const msg =
         err?.message || "Erreur lors de l'enregistrement de la vente.";
@@ -161,6 +235,9 @@ const POSPage = () => {
         a.download = "ticket.pdf";
         a.click();
       }
+
+      // Incrémenter le compteur de tickets pour aujourd'hui
+      incrementDailyTicketCounter();
     } catch (e) {
       alert(e.message || "Erreur impression ticket");
     }
@@ -191,7 +268,6 @@ const POSPage = () => {
   // Logout
 
   const magasinNom = "Magasin Principal";
-  const ticketId = `T-${Date.now().toString().slice(-6)}`;
   const dateStr = new Date().toLocaleDateString("fr-TN");
 
   const formatTND = (val) =>
@@ -226,7 +302,7 @@ const POSPage = () => {
             </div>
             <div>TPV: 1</div>
             <div>
-              Ticket: <span className="font-semibold">{ticketId}</span>
+              Ticket: <span className="font-semibold">{ticketNumber}</span>
             </div>
             <div>
               Date: <span className="font-semibold">{dateStr}</span>

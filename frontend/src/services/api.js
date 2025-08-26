@@ -66,6 +66,14 @@ class ApiService {
     return this.request("/auth/profile");
   }
 
+  async changePassword(payload) {
+    // payload: { currentPassword, newPassword, confirmPassword }
+    return this.request("/auth/change-password", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  }
+
   // Méthodes des produits
   async getProduits() {
     return this.request("/produits");

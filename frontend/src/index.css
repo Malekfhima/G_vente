@@ -1,11 +1,6 @@
 /* Fichiers de styles additionnels (doivent être avant toute autre règle) */
-@import "./styles/components.css";
-@import "./styles/layout.css";
-@import "./styles/utilities.css";
-@import "./styles/pages/auth.css";
-@import "./styles/pages/dashboard.css";
-@import "./styles/pages/produits.css";
-@import "./styles/pages/ventes.css";
+@import "./styles/pages/zones.css";
+@import "./styles/pages/services.css";
 
 @tailwind base;
 @tailwind components;
@@ -139,6 +134,30 @@
 
   .btn-link {
     @apply text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2;
+  }
+
+  /* Responsive helpers */
+  .table-responsive {
+    @apply overflow-x-auto -mx-4 sm:mx-0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (max-width: 640px) {
+    .page-container {
+      @apply px-3;
+    }
+    .table-header {
+      @apply px-3 py-2 text-[10px];
+    }
+    .table-cell {
+      @apply px-3 py-2 text-xs whitespace-normal;
+    }
   }
 }
 

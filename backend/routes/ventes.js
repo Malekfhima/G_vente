@@ -10,6 +10,9 @@ const {
   getVentesStats,
   exportVentesPDF,
   generateTicketPDF,
+  createGroupedVente,
+  getGroupedVentes,
+  getGroupedVenteDetails,
 } = require("../controllers/venteController");
 const { authenticateToken, requireAdmin } = require("../middleware/auth");
 
@@ -17,6 +20,14 @@ const { authenticateToken, requireAdmin } = require("../middleware/auth");
 router.get("/", authenticateToken, getAllVentes);
 router.get("/stats", authenticateToken, getVentesStats);
 router.get("/my-ventes", authenticateToken, getVentesByUser);
+// Ventes groupées
+router.get("/grouped", authenticateToken, getGroupedVentes);
+router.get(
+  "/grouped/:transactionId",
+  authenticateToken,
+  getGroupedVenteDetails
+);
+router.post("/grouped", authenticateToken, createGroupedVente);
 // Export PDF des ventes (placer avant la route paramétrée :id)
 router.get("/export/pdf", authenticateToken, exportVentesPDF);
 // Génération d'un ticket PDF depuis un panier

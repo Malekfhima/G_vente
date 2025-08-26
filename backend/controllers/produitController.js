@@ -1,4 +1,9 @@
 const { prisma } = require("../config/database");
+const {
+  generateUniqueBarcode,
+  validateBarcode,
+  barcodeExists,
+} = require("../utils/barcodeGenerator");
 
 // Récupérer tous les produits
 const getAllProduits = async (req, res) => {
@@ -36,7 +41,8 @@ const getProduitById = async (req, res) => {
 // Créer un nouveau produit
 const createProduit = async (req, res) => {
   try {
-    const { nom, description, prix, stock, categorie, isService } = req.body;
+    const { nom, description, prix, stock, categorie, isService, codeBarre } =
+      req.body;
 
     // Vérification des champs requis
     if (!nom || !prix) {
@@ -50,6 +56,34 @@ const createProduit = async (req, res) => {
       return res.status(400).json({
         message: "Le prix doit être positif",
       });
+    }
+
+    // Gestion du code-barre
+    let finalCodeBarre = codeBarre;
+    if (codeBarre) {
+      // Vérifier si le code-barre est valide
+      if (!validateBarcode(codeBarre)) {
+        return res.status(400).json({
+          message:
+            "Le code-barre doit être un code EAN-13 valide (13 chiffres)",
+        });
+      }
+
+      // Vérifier si le code-barre existe déjà
+      if (await barcodeExists(codeBarre)) {
+        return res.status(400).json({
+          message: "Ce code-barre existe déjà",
+        });
+      }
+    } else {
+      // Générer un code-barre automatiquement
+      try {
+        finalCodeBarre = await generateUniqueBarcode();
+      } catch (error) {
+        return res.status(500).json({
+          message: "Erreur lors de la génération du code-barre",
+        });
+      }
     }
 
     // Pour les services, le stock est toujours 0
@@ -72,6 +106,7 @@ const createProduit = async (req, res) => {
         stock: parseInt(stockValue),
         isService: Boolean(isService),
         categorie,
+        codeBarre: finalCodeBarre,
       },
     });
 
@@ -89,7 +124,8 @@ const createProduit = async (req, res) => {
 const updateProduit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, description, prix, stock, categorie, isService } = req.body;
+    const { nom, description, prix, stock, categorie, isService, codeBarre } =
+      req.body;
 
     // Vérification que le produit existe
     const existingProduit = await prisma.produit.findUnique({
@@ -103,6 +139,34 @@ const updateProduit = async (req, res) => {
     // Vérification des données
     if (prix !== undefined && prix <= 0) {
       return res.status(400).json({ message: "Le prix doit être positif" });
+    }
+
+    // Gestion du code-barre
+    let finalCodeBarre = codeBarre;
+    if (codeBarre && codeBarre !== existingProduit.codeBarre) {
+      // Vérifier si le code-barre est valide
+      if (!validateBarcode(codeBarre)) {
+        return res.status(400).json({
+          message:
+            "Le code-barre doit être un code EAN-13 valide (13 chiffres)",
+        });
+      }
+
+      // Vérifier si le code-barre existe déjà
+      if (await barcodeExists(codeBarre, parseInt(id))) {
+        return res.status(400).json({
+          message: "Ce code-barre existe déjà",
+        });
+      }
+    } else if (!codeBarre && !existingProduit.codeBarre) {
+      // Générer un code-barre automatiquement si le produit n'en a pas
+      try {
+        finalCodeBarre = await generateUniqueBarcode();
+      } catch (error) {
+        return res.status(500).json({
+          message: "Erreur lors de la génération du code-barre",
+        });
+      }
     }
 
     // Gestion du stock selon le type de produit
@@ -122,6 +186,7 @@ const updateProduit = async (req, res) => {
         stock: stockValue !== undefined ? parseInt(stockValue) : undefined,
         isService: isService !== undefined ? Boolean(isService) : undefined,
         categorie,
+        codeBarre: finalCodeBarre,
       },
     });
 
@@ -175,12 +240,15 @@ const deleteProduit = async (req, res) => {
 // Rechercher des produits
 const searchProduits = async (req, res) => {
   try {
-    const { q, categorie, minPrix, maxPrix } = req.query;
+    const { q, categorie, minPrix, maxPrix, codeBarre } = req.query;
 
     let where = {};
 
-    // Recherche par nom ou description (SQLite ne supporte pas mode: "insensitive")
-    if (q) {
+    // Recherche par code-barre (priorité)
+    if (codeBarre) {
+      where.codeBarre = codeBarre;
+    } else if (q) {
+      // Recherche par nom ou description (SQLite ne supporte pas mode: "insensitive")
       where.OR = [{ nom: { contains: q } }, { description: { contains: q } }];
     }
 
@@ -208,6 +276,33 @@ const searchProduits = async (req, res) => {
   }
 };
 
+// Rechercher un produit par code-barre
+const getProduitByCodeBarre = async (req, res) => {
+  try {
+    const { codeBarre } = req.params;
+
+    if (!codeBarre) {
+      return res.status(400).json({ message: "Code-barre requis" });
+    }
+
+    const produit = await prisma.produit.findUnique({
+      where: { codeBarre: codeBarre },
+    });
+
+    if (!produit) {
+      return res.status(404).json({ message: "Produit non trouvé" });
+    }
+
+    res.json(produit);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la recherche du produit par code-barre:",
+      error
+    );
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
+
 module.exports = {
   getAllProduits,
   getProduitById,
@@ -215,4 +310,5 @@ module.exports = {
   updateProduit,
   deleteProduit,
   searchProduits,
+  getProduitByCodeBarre,
 };

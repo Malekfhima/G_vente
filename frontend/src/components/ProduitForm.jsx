@@ -9,9 +9,27 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
     stock: produit?.stock || "",
     categorie: produit?.categorie || "",
     isService: produit?.isService || false,
+    codeBarre: produit?.codeBarre || "",
   });
 
+  // Champs de position (rack)
+  const initialPos = (() => {
+    const desc = produit?.description || "";
+    // Format attendu injecté: POS[A:x;C:y;E:z]
+    const match = desc.match(/POS\[A:([^;\]]*);C:([^;\]]*);E:([^;\]]*)\]/);
+    if (!match) return { aisle: "", column: "", shelf: "" };
+    return {
+      aisle: match[1] || "",
+      column: match[2] || "",
+      shelf: match[3] || "",
+    };
+  })();
+  const [rackAisle, setRackAisle] = useState(initialPos.aisle);
+  const [rackColumn, setRackColumn] = useState(initialPos.column);
+  const [rackShelf, setRackShelf] = useState(initialPos.shelf);
+
   const [errors, setErrors] = useState({});
+  const [showBarcodeOptions, setShowBarcodeOptions] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,6 +75,14 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
       newErrors.stock = `Le stock ne peut pas dépasser ${VALIDATION.MAX_STOCK}`;
     }
 
+    // Validation du code-barre
+    if (formData.codeBarre && formData.codeBarre.length !== 13) {
+      newErrors.codeBarre =
+        "Le code-barre doit contenir exactement 13 chiffres";
+    } else if (formData.codeBarre && !/^\d{13}$/.test(formData.codeBarre)) {
+      newErrors.codeBarre = "Le code-barre ne doit contenir que des chiffres";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -67,11 +93,22 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
     if (!validateForm()) {
       return;
     }
+    // Nettoyer ancienne balise POS si existante
+    const cleanedDesc = (formData.description || "").replace(
+      /\s*\|?\s*POS\[[^\]]*\]\s*$/,
+      ""
+    );
+    const hasAnyPos = rackAisle || rackColumn || rackShelf;
+    const posTag = hasAnyPos
+      ? ` | POS[A:${rackAisle};C:${rackColumn};E:${rackShelf}]`
+      : "";
 
     onSubmit({
       ...formData,
+      description: `${cleanedDesc}${posTag}`.trim(),
       prix: parseFloat(formData.prix),
       stock: formData.isService ? 0 : parseInt(formData.stock),
+      codeBarre: formData.codeBarre || null,
     });
   };
 
@@ -210,6 +247,90 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 {getFieldError("stock")}
               </div>
             )}
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label
+                  htmlFor="codeBarre"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Code-barre
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowBarcodeOptions(!showBarcodeOptions)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  {showBarcodeOptions ? "Masquer" : "Options"}
+                </button>
+              </div>
+              <input
+                id="codeBarre"
+                name="codeBarre"
+                type="text"
+                value={formData.codeBarre}
+                onChange={handleChange}
+                maxLength={13}
+                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.codeBarre ? "border-red-300" : "border-gray-300"
+                }`}
+                placeholder="13 chiffres (EAN-13)"
+              />
+              {getFieldError("codeBarre")}
+
+              {showBarcodeOptions && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                  <p className="text-sm text-gray-600 mb-2">
+                    <strong>Options de code-barre :</strong>
+                  </p>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    <li>• Laissez vide pour génération automatique</li>
+                    <li>• Saisissez un code EAN-13 valide (13 chiffres)</li>
+                    <li>• Le code sera vérifié pour éviter les doublons</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Position dans le rack */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Allée
+              </label>
+              <input
+                type="text"
+                value={rackAisle}
+                onChange={(e) => setRackAisle(e.target.value)}
+                placeholder="Ex: A"
+                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Colonne
+              </label>
+              <input
+                type="text"
+                value={rackColumn}
+                onChange={(e) => setRackColumn(e.target.value)}
+                placeholder="Ex: 3"
+                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Étagère
+              </label>
+              <input
+                type="text"
+                value={rackShelf}
+                onChange={(e) => setRackShelf(e.target.value)}
+                placeholder="Ex: 2"
+                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+              />
+            </div>
           </div>
 
           <div>

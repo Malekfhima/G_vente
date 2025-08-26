@@ -15,6 +15,7 @@ const clientRoutes = require("./routes/clients");
 const fournisseurRoutes = require("./routes/fournisseurs");
 const posRoutes = require("./routes/pos");
 const zoneRoutes = require("./routes/zones");
+const vendeurRoutes = require("./routes/vendeurs");
 
 const app = express();
 const PORT = config.server.port;
@@ -50,6 +51,7 @@ app.get("/", (req, res) => {
       produits: "/api/produits",
       ventes: "/api/ventes",
       users: "/api/users",
+      vendeurs: "/api/vendeurs",
       clients: "/api/clients",
       fournisseurs: "/api/fournisseurs",
       zones: "/api/zones",
@@ -62,6 +64,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/produits", produitRoutes);
 app.use("/api/ventes", venteRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/vendeurs", vendeurRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/fournisseurs", fournisseurRoutes);
 app.use("/api/pos", posRoutes);

@@ -23,7 +23,10 @@ const register = async (req, res) => {
     }
 
     // Hashage du mot de passe
-    const hashedPassword = await bcrypt.hash(password, config.security.bcryptRounds);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      config.security.bcryptRounds
+    );
 
     // Création de l'utilisateur
     const user = await prisma.user.create({
@@ -43,9 +46,13 @@ const register = async (req, res) => {
     });
 
     // Génération du token JWT
-    const token = jwt.sign({ userId: user.id, email: user.email }, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
-    });
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      config.jwt.secret,
+      {
+        expiresIn: config.jwt.expiresIn,
+      }
+    );
 
     res.status(201).json({
       message: "Utilisateur créé avec succès",
@@ -89,9 +96,13 @@ const login = async (req, res) => {
     }
 
     // Génération du token JWT
-    const token = jwt.sign({ userId: user.id, email: user.email }, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn,
-    });
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      config.jwt.secret,
+      {
+        expiresIn: config.jwt.expiresIn,
+      }
+    );
 
     // Retour des informations utilisateur (sans le mot de passe)
     const userInfo = {
@@ -139,5 +150,57 @@ module.exports = {
   getProfile,
 };
 
+// Changer le mot de passe (utilisateur connecté)
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
 
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Champs requis: currentPassword, newPassword, confirmPassword",
+        });
+    }
 
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "La confirmation ne correspond pas" });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Le nouveau mot de passe doit contenir au moins 6 caractères",
+        });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: "Mot de passe actuel incorrect" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, config.security.bcryptRounds);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashed },
+    });
+
+    return res.json({ message: "Mot de passe mis à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur lors du changement de mot de passe:", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
+
+module.exports.changePassword = changePassword;

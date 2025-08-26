@@ -197,10 +197,10 @@ const ZonesPage = () => {
           {/* En-tête */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Gestion des Zones
+              Gestion des Racks
             </h1>
             <p className="text-gray-600">
-              Gérez les zones géographiques et analysez leur rentabilité
+              Gérez les racks et analysez leur rentabilité
             </p>
           </div>
 
@@ -208,7 +208,7 @@ const ZonesPage = () => {
           <div className="bg-white rounded-lg shadow p-4 mb-6">
             <div className="flex items-center space-x-4">
               <label className="text-sm font-medium text-gray-700">
-                Période d&apos;analyse:
+                Période d&apos;analyse (rentabilité racks):
               </label>
               <select
                 value={selectedPeriod}
@@ -223,7 +223,7 @@ const ZonesPage = () => {
             </div>
           </div>
 
-          {/* Statistiques des zones */}
+          {/* Statistiques des racks */}
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow p-6">
@@ -251,7 +251,7 @@ const ZonesPage = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">
-                      Total Zones
+                      Total Racks
                     </p>
                     <p className="text-2xl font-semibold text-gray-900">
                       {stats.totalZones}
@@ -355,11 +355,11 @@ const ZonesPage = () => {
             </div>
           )}
 
-          {/* Top des zones les plus rentables */}
+          {/* Top des racks les plus rentables */}
           {topZones.length > 0 && (
             <div className="bg-white rounded-lg shadow p-6 mb-8">
               <h2 className="text-xl font-semibold mb-4">
-                Top 5 des Zones les Plus Rentables
+                Top 5 des Racks les Plus Rentables
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 {topZones.map((zone, index) => (
@@ -394,7 +394,7 @@ const ZonesPage = () => {
                   onClick={() => setShowForm(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
                 >
-                  + Nouvelle Zone
+                  + Nouveau Rack
                 </button>
               </div>
             </div>
@@ -404,14 +404,14 @@ const ZonesPage = () => {
           {showForm && (
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               <h2 className="text-xl font-semibold mb-4">
-                {editingZone ? "Modifier la zone" : "Nouvelle zone"}
+                {editingZone ? "Modifier le rack" : "Nouveau rack"}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nom de la zone *
+                      Nom du rack *
                     </label>
                     <input
                       type="text"
@@ -420,13 +420,13 @@ const ZonesPage = () => {
                       onChange={handleInputChange}
                       required
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="Nom de la zone"
+                      placeholder="Nom du rack"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ville
+                      Allée
                     </label>
                     <input
                       type="text"
@@ -434,13 +434,13 @@ const ZonesPage = () => {
                       value={formData.ville}
                       onChange={handleInputChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="Ville"
+                      placeholder="Allée (ex: A)"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Adresse
+                      Position / Étagère
                     </label>
                     <input
                       type="text"
@@ -448,13 +448,13 @@ const ZonesPage = () => {
                       value={formData.adresse}
                       onChange={handleInputChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="Adresse complète"
+                      placeholder="Position (ex: Ét. 3, Niv. 2)"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Code postal
+                      Colonne
                     </label>
                     <input
                       type="text"
@@ -462,7 +462,7 @@ const ZonesPage = () => {
                       value={formData.codePostal}
                       onChange={handleInputChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
-                      placeholder="Code postal"
+                      placeholder="Colonne (ex: 3)"
                     />
                   </div>
 
@@ -489,7 +489,7 @@ const ZonesPage = () => {
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                     <label className="ml-2 block text-sm text-gray-900">
-                      Zone active
+                      Rack actif
                     </label>
                   </div>
                 </div>
@@ -504,7 +504,7 @@ const ZonesPage = () => {
                     onChange={handleInputChange}
                     rows="3"
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    placeholder="Description de la zone..."
+                    placeholder="Description du rack..."
                   />
                 </div>
 
@@ -527,12 +527,12 @@ const ZonesPage = () => {
             </div>
           )}
 
-          {/* Liste des zones avec rentabilité */}
+          {/* Liste des racks avec rentabilité */}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {loading ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Chargement des zones...</p>
+                <p className="text-gray-600">Chargement des racks...</p>
               </div>
             ) : error ? (
               <div className="p-8 text-center">
@@ -549,13 +549,13 @@ const ZonesPage = () => {
               </div>
             ) : zones.length === 0 ? (
               <div className="p-8 text-center">
-                <p className="text-gray-600 mb-4">Aucune zone disponible</p>
+                <p className="text-gray-600 mb-4">Aucun rack disponible</p>
                 {!showForm && (
                   <button
                     onClick={() => setShowForm(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
                   >
-                    Créer la première zone
+                    Créer le premier rack
                   </button>
                 )}
               </div>
@@ -565,10 +565,10 @@ const ZonesPage = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Zone
+                        Rack
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Localisation
+                        Position
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Clients

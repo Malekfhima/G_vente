@@ -32,20 +32,6 @@ const Navbar = () => {
     <nav className="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo et nom de l'application */}
-          <div className="flex items-center">
-            <Link
-              to={ROUTES.HOME}
-              className="flex items-center space-x-2 hover:text-blue-200 transition-colors"
-              onClick={closeMenu}
-            >
-              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-              </svg>
-              <span className="text-xl font-bold">Gestion Vente</span>
-            </Link>
-          </div>
-
           {/* Menu de navigation - Desktop */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
@@ -61,12 +47,12 @@ const Navbar = () => {
 
             {/* Admin: CRUD Produits */}
 
-            {/* Admin: CRUD Vendeurs (Users) */}
+            {/* Admin: CRUD Vendeurs */}
             {isAuthenticated && user?.role === "admin" && (
               <Link
-                to={ROUTES.USERS}
+                to="/vendeurs"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActiveRoute(ROUTES.USERS)
+                  isActiveRoute("/vendeurs")
                     ? "bg-blue-700 text-white"
                     : "text-blue-100 hover:bg-blue-700 hover:text-white"
                 }`}
@@ -185,7 +171,10 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <div className="flex items-center space-x-2">
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-2 hover:opacity-90"
+                >
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium">
                       {user?.nom?.charAt(0)?.toUpperCase() || "U"}
@@ -197,7 +186,8 @@ const Navbar = () => {
                       {user?.role}
                     </div>
                   </div>
-                </div>
+                </Link>
+
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md text-sm font-medium transition-colors"
@@ -286,9 +276,9 @@ const Navbar = () => {
                   Produits
                 </Link>
                 <Link
-                  to={ROUTES.USERS}
+                  to="/vendeurs"
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActiveRoute(ROUTES.USERS)
+                    isActiveRoute("/vendeurs")
                       ? "bg-blue-800 text-white"
                       : "text-blue-100 hover:bg-blue-800 hover:text-white"
                   }`}
@@ -375,7 +365,11 @@ const Navbar = () => {
           <div className="pt-4 pb-3 border-t border-blue-600">
             {isAuthenticated ? (
               <div className="px-4 space-y-3">
-                <div className="flex items-center space-x-3">
+                <Link
+                  to="/profile"
+                  onClick={closeMenu}
+                  className="flex items-center space-x-3 hover:opacity-90"
+                >
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium">
                       {user?.nom?.charAt(0)?.toUpperCase() || "U"}
@@ -387,7 +381,8 @@ const Navbar = () => {
                       {user?.role}
                     </div>
                   </div>
-                </div>
+                </Link>
+
                 <button
                   onClick={() => {
                     handleLogout();

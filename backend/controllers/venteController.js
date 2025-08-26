@@ -1,4 +1,5 @@
 const { prisma } = require("../config/database");
+const { randomUUID } = require("crypto");
 
 // Récupérer toutes les ventes
 const getAllVentes = async (req, res) => {
@@ -404,37 +405,120 @@ const exportVentesPDF = async (req, res) => {
   }
 };
 
+// Compteur de tickets en mémoire (réinitialisé à chaque redémarrage du serveur)
+let lastTicketDateISO = null;
+let lastTicketNumberForDay = 0;
+
 // Générer un ticket PDF pour un panier donné
 const generateTicketPDF = async (req, res) => {
   try {
-    const { items, total, encaisse, rendu } = req.body;
+    const { items, total, encaisse, rendu, paymentMethod, tvaRate } = req.body;
 
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Panier vide" });
     }
 
-    const doc = new pdf({ margin: 24 });
+    // Calcul du numéro de ticket journalier (1, 2, 3, ...)
+    const now = new Date();
+    const todayISO = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    if (lastTicketDateISO !== todayISO) {
+      lastTicketDateISO = todayISO;
+      lastTicketNumberForDay = 0;
+    }
+    lastTicketNumberForDay += 1;
+    const ticketNumber = lastTicketNumberForDay;
+
+    const doc = new pdf({ margin: 16, size: [220, 800] }); // format étroit style ticket
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'inline; filename="ticket.pdf"');
     doc.pipe(res);
 
-    doc.fontSize(14).text("Ticket de caisse", { align: "center" });
-    doc.moveDown();
-    doc.fontSize(10).text(`Date: ${new Date().toLocaleString()}`);
-    doc.moveDown(0.5);
+    // Données magasin (adapter si besoin à partir d'une config/env)
+    const storeName = process.env.STORE_NAME || "Le Pronto";
+    const storeAddress =
+      process.env.STORE_ADDRESS ||
+      "12 avenue Félix Faure\n69007 LYON\nTel: 0631571304";
 
-    items.forEach((item, idx) => {
-      const line = `${idx + 1}. ${item.nom} x${item.quantite}  @ ${
-        item.prix
-      }  = ${(item.prix * item.quantite - (item.remise || 0)).toFixed(2)}`;
-      doc.text(line);
+    // Mise en page entête
+    doc.rect(16, 12, 188, 22).fillAndStroke("#333", "#333");
+    doc
+      .fillColor("#fff")
+      .fontSize(12)
+      .text(storeName, 18, 16, { width: 184, align: "center" });
+    doc.moveDown(0.5);
+    doc
+      .fillColor("#000")
+      .fontSize(8)
+      .text("Éditeur de logiciels pour restaurants", { align: "center" });
+    doc.moveDown(0.4);
+    doc.fontSize(9).text(storeAddress, { align: "left" });
+
+    // Infos ticket
+    const drawSeparator = () => {
+      doc.moveDown(0.3);
+      doc.fontSize(9).text("".padEnd(40, "="));
+      doc.moveDown(0.2);
+    };
+
+    doc.moveDown(0.2);
+    doc.fontSize(9).text(`Date: ${now.toLocaleString()}`);
+    doc.fontSize(9).text(`Ticket: ${String(ticketNumber).padStart(4, "0")}`);
+    drawSeparator();
+
+    // Lignes d'articles
+    const right = (v) => doc.text(v, { align: "right" });
+    items.forEach((item) => {
+      const qty = Number(item.quantite || 1);
+      const unit = Number(item.prix || 0);
+      const remise = Number(item.remise || 0);
+      const lineTotal = qty * unit - remise;
+      doc.fontSize(9).text(item.nom);
+      doc
+        .fontSize(9)
+        .text(`x ${qty}  @ ${unit.toFixed(2)}`, { continued: true })
+        .text(lineTotal.toFixed(2), { align: "right" });
     });
 
-    doc.moveDown();
-    doc.text(`Total: ${Number(total || 0).toFixed(2)}`);
+    // Totaux, TVA
+    drawSeparator();
+    const rate = Number(tvaRate ?? process.env.TVA_RATE ?? 0.19);
+    const totalTTC = Number(total || 0);
+    const totalHT = totalTTC / (1 + rate);
+    const tvaAmount = totalTTC - totalHT;
+
+    doc
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .text("Total", { continued: true })
+      .text(totalTTC.toFixed(2), { align: "right" });
+    doc.font("Helvetica").fontSize(9);
+    doc
+      .text(`Montant H.T.`, { continued: true })
+      .text(totalHT.toFixed(2), { align: "right" });
+    doc
+      .text(`T.V.A (${Math.round(rate * 100)}%)`, { continued: true })
+      .text(tvaAmount.toFixed(2), { align: "right" });
+
+    drawSeparator();
+    // Mode de paiement et encaissement
+    const mode =
+      paymentMethod ||
+      (Number(encaisse) >= totalTTC ? "Espèces" : "Carte bancaire");
+    doc.fontSize(9).font("Helvetica-Bold").text("MODE DE PAIEMENT");
+    doc.font("Helvetica").text(mode);
+    doc.moveDown(0.2);
     if (encaisse !== undefined)
       doc.text(`Encaisse: ${Number(encaisse).toFixed(2)}`);
     if (rendu !== undefined) doc.text(`Rendu: ${Number(rendu).toFixed(2)}`);
+
+    drawSeparator();
+    doc
+      .fontSize(8)
+      .text("Nous vous remercions de votre visite", { align: "center" });
+    doc.moveDown(0.1);
+    doc.fontSize(8).text(`Ticket ${String(ticketNumber).padStart(4, "0")}`, {
+      align: "center",
+    });
 
     doc.end();
   } catch (error) {
@@ -454,3 +538,159 @@ module.exports = {
   exportVentesPDF,
   generateTicketPDF,
 };
+
+// Créer une vente groupée (plusieurs articles en une transaction)
+const createGroupedVente = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { items } = req.body; // items: [{ produitId, quantite }]
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Liste d'articles requise" });
+    }
+
+    // Générer un identifiant de transaction
+    const transactionId = randomUUID();
+
+    const result = await prisma.$transaction(async (tx) => {
+      const lignes = [];
+      let totalTransaction = 0;
+
+      for (const item of items) {
+        const produitId = parseInt(item.produitId);
+        const quantite = parseInt(item.quantite);
+
+        if (!produitId || !quantite || quantite <= 0) {
+          throw new Error("Produit et quantité valides requis");
+        }
+
+        const produit = await tx.produit.findUnique({
+          where: { id: produitId },
+        });
+        if (!produit) {
+          throw new Error(`Produit ${produitId} introuvable`);
+        }
+
+        const isService = produit.isService === true;
+        if (!isService && produit.stock < quantite) {
+          throw new Error(`Stock insuffisant pour ${produit.nom}`);
+        }
+
+        const prixTotal = produit.prix * quantite;
+        const vente = await tx.vente.create({
+          data: {
+            quantite,
+            prixTotal,
+            userId,
+            produitId,
+            transactionId,
+          },
+          include: {
+            produit: {
+              select: { id: true, nom: true, prix: true, categorie: true },
+            },
+          },
+        });
+
+        if (!isService) {
+          await tx.produit.update({
+            where: { id: produitId },
+            data: { stock: produit.stock - quantite },
+          });
+        }
+
+        totalTransaction += prixTotal;
+        lignes.push(vente);
+      }
+
+      return { transactionId, total: totalTransaction, lignes };
+    });
+
+    res.status(201).json({
+      message: "Vente groupée créée avec succès",
+      transaction: result,
+    });
+  } catch (error) {
+    console.error("Erreur vente groupée:", error);
+    res
+      .status(400)
+      .json({ message: error.message || "Erreur création vente groupée" });
+  }
+};
+
+// Lister les ventes groupées: une ligne par transactionId
+const getGroupedVentes = async (req, res) => {
+  try {
+    const groups = await prisma.vente.groupBy({
+      by: ["transactionId"],
+      _sum: { prixTotal: true, quantite: true },
+      _count: { _all: true },
+      orderBy: { transactionId: "desc" },
+    });
+
+    // Récupérer pour chaque groupe la première date et l'utilisateur
+    const details = await Promise.all(
+      groups.map(async (g) => {
+        const first = await prisma.vente.findFirst({
+          where: { transactionId: g.transactionId },
+          orderBy: { date: "asc" },
+          include: { user: { select: { id: true, nom: true, email: true } } },
+        });
+        return {
+          transactionId: g.transactionId,
+          total: g._sum.prixTotal || 0,
+          totalQuantite: g._sum.quantite || 0,
+          lignes: g._count._all,
+          date: first?.date || null,
+          user: first?.user || null,
+        };
+      })
+    );
+
+    res.json(details);
+  } catch (error) {
+    console.error("Erreur liste ventes groupées:", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
+
+// Détails d'une vente groupée
+const getGroupedVenteDetails = async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    const ventes = await prisma.vente.findMany({
+      where: { transactionId },
+      include: {
+        user: { select: { id: true, nom: true, email: true } },
+        produit: {
+          select: { id: true, nom: true, prix: true, categorie: true },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
+
+    if (ventes.length === 0) {
+      return res.status(404).json({ message: "Transaction introuvable" });
+    }
+
+    const total = ventes.reduce((acc, v) => acc + v.prixTotal, 0);
+    const totalQuantite = ventes.reduce((acc, v) => acc + v.quantite, 0);
+    const meta = {
+      transactionId,
+      date: ventes[0].date,
+      user: ventes[0].user,
+      total,
+      totalQuantite,
+      lignes: ventes.length,
+    };
+
+    res.json({ meta, ventes });
+  } catch (error) {
+    console.error("Erreur détails vente groupée:", error);
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
+
+module.exports.createGroupedVente = createGroupedVente;
+module.exports.getGroupedVentes = getGroupedVentes;
+module.exports.getGroupedVenteDetails = getGroupedVenteDetails;

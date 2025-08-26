@@ -65,6 +65,12 @@ const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Code-barre
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Position Rack
+                </th>
                 {isAdmin && (
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -114,6 +120,21 @@ const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
                     >
                       {produit.stock} - {getStockStatus(produit.stock).label}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {produit.codeBarre ? (
+                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                        {produit.codeBarre}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">-</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {(produit.description || "")
+                      .match(/POS\[A:([^;\]]*);C:([^;\]]*);E:([^;\]]*)\]/)
+                      ?.slice(1)
+                      .join("-") || "-"}
                   </td>
                   {isAdmin && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

@@ -2,6 +2,7 @@ require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const config = require("../config/config");
+const { generateUniqueBarcode } = require("../utils/barcodeGenerator");
 
 const prisma = new PrismaClient();
 
@@ -141,42 +142,160 @@ async function main() {
       categorie: "SCOLARITE",
       isService: true,
     },
+    // Services scolaires détaillés
+    {
+      nom: "Duplicata carte étudiant",
+      description: "Réédition carte étudiant",
+      prix: 5.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Certificat de scolarité",
+      description: "Délivrance certificat",
+      prix: 3.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Relevé de notes (par semestre)",
+      description: "Impression et signature",
+      prix: 4.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Attestation de réussite",
+      description: "Délivrance attestation",
+      prix: 3.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Traduction simple (par page)",
+      description: "Traduction non assermentée",
+      prix: 10.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Dossier d'inscription (complet)",
+      description: "Préparation + vérification",
+      prix: 20.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Scan document (par page)",
+      description: "Numérisation et envoi",
+      prix: 0.3,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Photocopie dossier (20 pages)",
+      description: "Forfait 20 pages N/B",
+      prix: 2.5,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Reliure dossier scolaire",
+      description: "Spirale + couverture",
+      prix: 6.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Plastification carte",
+      description: "Format ID",
+      prix: 1.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Photo d'identité (4 pièces)",
+      description: "Impression 3.5x4.5",
+      prix: 5.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Lettre de motivation (rédaction)",
+      description: "Saisie + mise en forme",
+      prix: 7.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
+    {
+      nom: "Curriculum Vitae (rédaction)",
+      description: "Saisie + mise en page",
+      prix: 8.0,
+      stock: 0,
+      categorie: "SCOLARITE",
+      isService: true,
+    },
   ];
 
   for (const produitData of produits) {
+    // Générer un code-barre pour les services (optionnel)
+    let codeBarre = null;
+    if (!produitData.isService) {
+      try {
+        codeBarre = await generateUniqueBarcode();
+      } catch (error) {
+        console.log(
+          `⚠️ Impossible de générer un code-barre pour ${produitData.nom}`
+        );
+      }
+    }
+
     const produit = await prisma.produit.upsert({
       where: { nom: produitData.nom },
       update: {},
       create: {
         ...produitData,
+        codeBarre,
         // Ces éléments sont des services, on laisse stock à 0
       },
     });
-    console.log(`✅ Produit créé: ${produit.nom}`);
+    console.log(
+      `✅ Produit créé: ${produit.nom}${
+        codeBarre ? ` (Code: ${codeBarre})` : ""
+      }`
+    );
   }
 
-  // Création de quelques ventes de test (après avoir créé les produits)
+  // Création d'une vente groupée de test (transactionId unique)
+  const { randomUUID } = require("crypto");
+  const transactionId = randomUUID();
   const ventes = [
-    {
-      quantite: 2,
-      prixTotal: 0.3, // 2 x 0.15 (Photocopie N/B)
-      userId: vendeur.id,
-      produitId: 3, // Photocopie N/B - A4
-    },
-    {
-      quantite: 1,
-      prixTotal: 2.5, // 1 x 2.5 (Plastification A4)
-      userId: vendeur.id,
-      produitId: 5, // Plastification A4
-    },
+    { quantite: 2, userId: vendeur.id, produitId: 3 },
+    { quantite: 1, userId: vendeur.id, produitId: 5 },
   ];
 
-  for (const venteData of ventes) {
+  for (const item of ventes) {
+    const produit = await prisma.produit.findUnique({
+      where: { id: item.produitId },
+    });
+    const prixTotal = (produit?.prix || 0) * item.quantite;
     const vente = await prisma.vente.create({
-      data: venteData,
+      data: { ...item, prixTotal, transactionId },
     });
     console.log(
-      `✅ Vente créée: ${vente.quantite}x produit ID ${vente.produitId}`
+      `✅ Vente (groupée) créée: ${vente.quantite}x produit ID ${vente.produitId}`
     );
   }
 
