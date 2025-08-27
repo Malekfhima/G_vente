@@ -98,4 +98,3 @@ module.exports = {
   validateBarcode,
   barcodeExists,
 };
-

@@ -10,6 +10,7 @@ const getAllProduits = async (req, res) => {
   try {
     const produits = await prisma.produit.findMany({
       orderBy: { createdAt: "desc" },
+      include: { fournisseur: true },
     });
 
     res.json(produits);
@@ -25,6 +26,7 @@ const getProduitById = async (req, res) => {
     const { id } = req.params;
     const produit = await prisma.produit.findUnique({
       where: { id: parseInt(id) },
+      include: { fournisseur: true },
     });
 
     if (!produit) {
@@ -41,21 +43,43 @@ const getProduitById = async (req, res) => {
 // Créer un nouveau produit
 const createProduit = async (req, res) => {
   try {
-    const { nom, description, prix, stock, categorie, isService, codeBarre } =
-      req.body;
+    const {
+      nom,
+      description,
+      reference,
+      codeBarre,
+      prixAchatHT,
+      prixVenteTTC,
+      tauxTVA,
+      stock,
+      categorie,
+      isService,
+      fournisseurId,
+      seuilAlerteStock,
+    } = req.body;
 
     // Vérification des champs requis
-    if (!nom || !prix) {
+    if (!nom || prixVenteTTC === undefined) {
       return res.status(400).json({
-        message: "Nom et prix sont requis",
+        message: "Nom et prix de vente TTC sont requis",
       });
     }
 
     // Vérification que le prix est positif
-    if (prix <= 0) {
+    if (prixVenteTTC <= 0) {
       return res.status(400).json({
-        message: "Le prix doit être positif",
+        message: "Le prix de vente doit être positif",
       });
+    }
+
+    // Validation TVA si fournie
+    if (tauxTVA !== undefined) {
+      const tva = parseFloat(tauxTVA);
+      if (Number.isNaN(tva) || tva < 0 || tva > 100) {
+        return res
+          .status(400)
+          .json({ message: "Le taux de TVA doit être entre 0 et 100" });
+      }
     }
 
     // Gestion du code-barre
@@ -102,11 +126,17 @@ const createProduit = async (req, res) => {
       data: {
         nom,
         description,
-        prix: parseFloat(prix),
+        reference,
+        codeBarre: finalCodeBarre,
+        prixAchatHT: prixAchatHT !== undefined ? parseFloat(prixAchatHT) : null,
+        prixVenteTTC: parseFloat(prixVenteTTC),
+        tauxTVA: tauxTVA !== undefined ? parseFloat(tauxTVA) : null,
         stock: parseInt(stockValue),
+        seuilAlerteStock:
+          seuilAlerteStock !== undefined ? parseInt(seuilAlerteStock) : 0,
         isService: Boolean(isService),
         categorie,
-        codeBarre: finalCodeBarre,
+        fournisseurId: fournisseurId ? parseInt(fournisseurId) : null,
       },
     });
 
@@ -124,8 +154,20 @@ const createProduit = async (req, res) => {
 const updateProduit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, description, prix, stock, categorie, isService, codeBarre } =
-      req.body;
+    const {
+      nom,
+      description,
+      reference,
+      codeBarre,
+      prixAchatHT,
+      prixVenteTTC,
+      tauxTVA,
+      stock,
+      categorie,
+      isService,
+      fournisseurId,
+      seuilAlerteStock,
+    } = req.body;
 
     // Vérification que le produit existe
     const existingProduit = await prisma.produit.findUnique({
@@ -137,8 +179,19 @@ const updateProduit = async (req, res) => {
     }
 
     // Vérification des données
-    if (prix !== undefined && prix <= 0) {
-      return res.status(400).json({ message: "Le prix doit être positif" });
+    if (prixVenteTTC !== undefined && prixVenteTTC <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Le prix de vente doit être positif" });
+    }
+
+    if (tauxTVA !== undefined) {
+      const tva = parseFloat(tauxTVA);
+      if (Number.isNaN(tva) || tva < 0 || tva > 100) {
+        return res
+          .status(400)
+          .json({ message: "Le taux de TVA doit être entre 0 et 100" });
+      }
     }
 
     // Gestion du code-barre
@@ -182,10 +235,21 @@ const updateProduit = async (req, res) => {
       data: {
         nom,
         description,
-        prix: prix !== undefined ? parseFloat(prix) : undefined,
+        reference,
+        prixAchatHT:
+          prixAchatHT !== undefined ? parseFloat(prixAchatHT) : undefined,
+        prixVenteTTC:
+          prixVenteTTC !== undefined ? parseFloat(prixVenteTTC) : undefined,
+        tauxTVA: tauxTVA !== undefined ? parseFloat(tauxTVA) : undefined,
         stock: stockValue !== undefined ? parseInt(stockValue) : undefined,
+        seuilAlerteStock:
+          seuilAlerteStock !== undefined
+            ? parseInt(seuilAlerteStock)
+            : undefined,
         isService: isService !== undefined ? Boolean(isService) : undefined,
         categorie,
+        fournisseurId:
+          fournisseurId !== undefined ? parseInt(fournisseurId) : undefined,
         codeBarre: finalCodeBarre,
       },
     });
@@ -259,14 +323,15 @@ const searchProduits = async (req, res) => {
 
     // Filtre par prix
     if (minPrix || maxPrix) {
-      where.prix = {};
-      if (minPrix) where.prix.gte = parseFloat(minPrix);
-      if (maxPrix) where.prix.lte = parseFloat(maxPrix);
+      where.prixVenteTTC = {};
+      if (minPrix) where.prixVenteTTC.gte = parseFloat(minPrix);
+      if (maxPrix) where.prixVenteTTC.lte = parseFloat(maxPrix);
     }
 
     const produits = await prisma.produit.findMany({
       where,
       orderBy: { nom: "asc" },
+      include: { fournisseur: true },
     });
 
     res.json(produits);
@@ -287,6 +352,7 @@ const getProduitByCodeBarre = async (req, res) => {
 
     const produit = await prisma.produit.findUnique({
       where: { codeBarre: codeBarre },
+      include: { fournisseur: true },
     });
 
     if (!produit) {

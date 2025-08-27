@@ -6,15 +6,14 @@ export const USER_ROLES = {
 
 // Constantes pour les catégories de produits
 export const PRODUCT_CATEGORIES = [
-  "Électronique",
-  "Vêtements",
-  "Livres",
-  "Maison",
-  "Sport",
-  "Beauté",
-  "Jouets",
-  "Automobile",
-  "Jardin",
+  "Stylos",
+  "Cahiers",
+  "Cartables",
+  "Fournitures de bureau",
+  "Papeterie",
+  "Accessoires scolaires",
+  "Impression",
+  "Informatique",
   "Autre",
 ];
 

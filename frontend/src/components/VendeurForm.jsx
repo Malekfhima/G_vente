@@ -191,4 +191,3 @@ const VendeurForm = ({ vendeur, onSubmit, onCancel }) => {
 };
 
 export default VendeurForm;
-

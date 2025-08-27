@@ -1,16 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PRODUCT_CATEGORIES, VALIDATION } from "../utils/constants";
 
 const ProduitForm = ({ produit, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     nom: produit?.nom || "",
     description: produit?.description || "",
-    prix: produit?.prix || "",
-    stock: produit?.stock || "",
-    categorie: produit?.categorie || "",
-    isService: produit?.isService || false,
+    reference: produit?.reference || "",
     codeBarre: produit?.codeBarre || "",
+    prixAchatHT: produit?.prixAchatHT ?? "",
+    prixVenteTTC: produit?.prixVenteTTC ?? produit?.prix ?? "",
+    tauxTVA: produit?.tauxTVA ?? "",
+    stock: produit?.stock ?? "",
+    seuilAlerteStock: produit?.seuilAlerteStock ?? "",
+    categorie: produit?.categorie || "",
+    fournisseurId: produit?.fournisseurId ?? "",
+    isService: produit?.isService || false,
   });
+
+  const [fournisseurs, setFournisseurs] = useState([]);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/fournisseurs");
+        const data = await res.json();
+        setFournisseurs(Array.isArray(data) ? data : []);
+      } catch (e) {
+        setFournisseurs([]);
+      }
+    };
+    load();
+  }, []);
 
   // Champs de position (rack)
   const initialPos = (() => {
@@ -63,10 +82,10 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
       newErrors.description = `La description ne peut pas dépasser ${VALIDATION.MAX_DESCRIPTION_LENGTH} caractères`;
     }
 
-    if (!formData.prix || formData.prix <= 0) {
-      newErrors.prix = "Le prix doit être supérieur à 0";
-    } else if (formData.prix > VALIDATION.MAX_PRICE) {
-      newErrors.prix = `Le prix ne peut pas dépasser ${VALIDATION.MAX_PRICE}`;
+    if (!formData.prixVenteTTC || formData.prixVenteTTC <= 0) {
+      newErrors.prixVenteTTC = "Le prix de vente TTC doit être supérieur à 0";
+    } else if (formData.prixVenteTTC > VALIDATION.MAX_PRICE) {
+      newErrors.prixVenteTTC = `Le prix ne peut pas dépasser ${VALIDATION.MAX_PRICE}`;
     }
 
     if (formData.stock === "" || formData.stock < 0) {
@@ -81,6 +100,14 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
         "Le code-barre doit contenir exactement 13 chiffres";
     } else if (formData.codeBarre && !/^\d{13}$/.test(formData.codeBarre)) {
       newErrors.codeBarre = "Le code-barre ne doit contenir que des chiffres";
+    }
+
+    // Validation TVA
+    if (
+      formData.tauxTVA !== "" &&
+      (parseFloat(formData.tauxTVA) < 0 || parseFloat(formData.tauxTVA) > 100)
+    ) {
+      newErrors.tauxTVA = "Le taux de TVA doit être entre 0 et 100";
     }
 
     setErrors(newErrors);
@@ -106,8 +133,22 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
     onSubmit({
       ...formData,
       description: `${cleanedDesc}${posTag}`.trim(),
-      prix: parseFloat(formData.prix),
+      prixAchatHT:
+        formData.prixAchatHT !== ""
+          ? parseFloat(formData.prixAchatHT)
+          : undefined,
+      prixVenteTTC: parseFloat(formData.prixVenteTTC),
+      tauxTVA:
+        formData.tauxTVA !== "" ? parseFloat(formData.tauxTVA) : undefined,
       stock: formData.isService ? 0 : parseInt(formData.stock),
+      seuilAlerteStock:
+        formData.seuilAlerteStock !== ""
+          ? parseInt(formData.seuilAlerteStock)
+          : undefined,
+      fournisseurId:
+        formData.fournisseurId !== ""
+          ? parseInt(formData.fournisseurId)
+          : undefined,
       codeBarre: formData.codeBarre || null,
     });
   };
@@ -119,7 +160,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="bg-white shadow rounded-lg">
+    <div className="card card-hoverable">
       <div className="px-4 py-5 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">
           {produit ? "Modifier le produit" : "Ajouter un nouveau produit"}
@@ -193,33 +234,39 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
             </div>
 
             <div>
-              <label
-                htmlFor="prix"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Prix *
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Référence
               </label>
-              <div className="relative">
+              <input
+                name="reference"
+                type="text"
+                value={formData.reference}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Référence interne"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Prix d&apos;achat (TND)
+              </label>
+              <div>
                 <input
-                  id="prix"
-                  name="prix"
+                  name="prixAchatHT"
                   type="number"
                   step="0.01"
                   min={VALIDATION.MIN_PRICE}
                   max={VALIDATION.MAX_PRICE}
-                  value={formData.prix}
+                  value={formData.prixAchatHT}
                   onChange={handleChange}
-                  required
-                  className={`w-full border rounded-md pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.prix ? "border-red-300" : "border-gray-300"
+                  className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.prixAchatHT ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="0.00"
                 />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">TND</span>
-                </div>
               </div>
-              {getFieldError("prix")}
+              {getFieldError("prixAchatHT")}
             </div>
 
             {!formData.isService && (
@@ -245,6 +292,85 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                   placeholder="0"
                 />
                 {getFieldError("stock")}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Prix de vente (TND) *
+              </label>
+              <div>
+                <input
+                  name="prixVenteTTC"
+                  type="number"
+                  step="0.01"
+                  min={VALIDATION.MIN_PRICE}
+                  max={VALIDATION.MAX_PRICE}
+                  value={formData.prixVenteTTC}
+                  onChange={handleChange}
+                  required
+                  className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.prixVenteTTC ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder="0.00"
+                />
+              </div>
+              {getFieldError("prixVenteTTC")}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Taux de TVA (%)
+              </label>
+              <input
+                name="tauxTVA"
+                type="number"
+                step="0.01"
+                min={0}
+                max={100}
+                value={formData.tauxTVA}
+                onChange={handleChange}
+                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.tauxTVA ? "border-red-300" : "border-gray-300"
+                }`}
+                placeholder="Ex: 19"
+              />
+              {getFieldError("tauxTVA")}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Fournisseur
+              </label>
+              <select
+                name="fournisseurId"
+                value={formData.fournisseurId}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Sélectionner un fournisseur</option>
+                {fournisseurs.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.nom}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {!formData.isService && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Seuil d&apos;alerte stock
+                </label>
+                <input
+                  name="seuilAlerteStock"
+                  type="number"
+                  min={0}
+                  value={formData.seuilAlerteStock}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Ex: 10"
+                />
               </div>
             )}
 

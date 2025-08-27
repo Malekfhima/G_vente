@@ -1,5 +1,4 @@
 import React from "react";
-import { PRODUCT_CATEGORIES } from "../utils/constants";
 
 const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
   const formatCurrency = (amount) => {
@@ -44,7 +43,7 @@ const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg">
+    <div className="card card-hoverable">
       <div className="px-4 py-5 sm:p-6">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -60,7 +59,13 @@ const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
                   Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Prix
+                  Prix TTC
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  TVA
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fournisseur
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
@@ -94,29 +99,31 @@ const ProduitList = ({ produits, onEdit, onDelete, isAdmin }) => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <span className="badge badge-blue">
                       {produit.categorie || "Non catégorisé"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        produit.isService
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-green-100 text-green-800"
+                      className={`badge ${
+                        produit.isService ? "badge-purple" : "badge-green"
                       }`}
                     >
                       {produit.isService ? "Service" : "Produit"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatCurrency(produit.prix)}
+                    {formatCurrency(produit.prixVenteTTC ?? produit.prix)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {produit.tauxTVA != null ? `${produit.tauxTVA}%` : "-"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {produit.fournisseur?.nom || "-"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        getStockStatus(produit.stock).color
-                      }`}
+                      className={`badge ${getStockStatus(produit.stock).color}`}
                     >
                       {produit.stock} - {getStockStatus(produit.stock).label}
                     </span>

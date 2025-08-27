@@ -23,6 +23,7 @@ import FournisseursPage from "./pages/FournisseursPage";
 import ServicesPage from "./pages/ServicesPage";
 import ZonesPage from "./pages/ZonesPage";
 import ProfilePage from "./pages/ProfilePage";
+import CategoriesPage from "./pages/CategoriesPage";
 import AdminRoute from "./components/AdminRoute";
 
 // Composant pour les routes protégées
@@ -106,6 +107,14 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <ServicesPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/categories"
+        element={
+          <AdminRoute>
+            <CategoriesPage />
           </AdminRoute>
         }
       />

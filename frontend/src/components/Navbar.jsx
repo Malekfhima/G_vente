@@ -103,6 +103,20 @@ const Navbar = () => {
               </Link>
             )}
 
+            {/* Admin: CRUD Catégories */}
+            {isAuthenticated && user?.role === "admin" && (
+              <Link
+                to="/categories"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActiveRoute("/categories")
+                    ? "bg-blue-700 text-white"
+                    : "text-blue-100 hover:bg-blue-700 hover:text-white"
+                }`}
+              >
+                Catégories
+              </Link>
+            )}
+
             {/* Admin: CRUD Zones */}
             {isAuthenticated && user?.role === "admin" && (
               <Link

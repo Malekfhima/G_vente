@@ -22,17 +22,35 @@ model User {
 }
 
 model Produit {
-  id          Int      @id @default(autoincrement())
-  nom         String   @unique
+  id               Int          @id @default(autoincrement())
+  nom              String       @unique
+  description      String?
+  reference        String?      @unique
+  codeBarre        String?      @unique
+  prixAchatHT      Float?
+  prix             Float        @default(0)
+  prixVenteTTC     Float        @default(0)
+  tauxTVA          Float? // en pourcentage, ex: 19
+  stock            Int          @default(0)
+  categorie        String?
+  categorieId      Int?
+  categorieRef     Categorie?   @relation(fields: [categorieId], references: [id], onDelete: SetNull)
+  isService        Boolean      @default(false)
+  seuilAlerteStock Int?         @default(0)
+  fournisseurId    Int?
+  fournisseur      Fournisseur? @relation(fields: [fournisseurId], references: [id], onDelete: SetNull)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  ventes           Vente[]
+}
+
+model Categorie {
+  id          Int       @id @default(autoincrement())
+  nom         String    @unique
   description String?
-  prix        Float
-  stock       Int      @default(0)
-  categorie   String?
-  codeBarre   String?  @unique
-  isService   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  ventes      Vente[]
+  produits    Produit[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Zone {
@@ -93,13 +111,14 @@ model Client {
 }
 
 model Fournisseur {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   nom       String
-  email     String?  @unique
+  email     String?   @unique
   telephone String?
   adresse   String?
   zoneId    Int?
-  zone      Zone?    @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  zone      Zone?     @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  produits  Produit[]
 }

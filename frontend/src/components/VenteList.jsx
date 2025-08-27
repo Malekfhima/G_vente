@@ -11,6 +11,24 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
     }).format(amount);
   };
 
+  const getUnitPrice = (vente) => {
+    const raw =
+      vente.prixUnitaire ??
+      (vente.produit ? vente.produit.prixVenteTTC ?? vente.produit.prix : 0) ??
+      0;
+    return Number(raw || 0);
+  };
+
+  const getTotalPrice = (vente) => {
+    const total = vente.prixTotal;
+    if (typeof total === "number" && !Number.isNaN(total) && total > 0) {
+      return total;
+    }
+    const unit = getUnitPrice(vente);
+    const qty = Number(vente.quantite || 1);
+    return unit * qty;
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "2-digit",
@@ -99,10 +117,12 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
                     {vente.quantite}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {vente.produit ? formatCurrency(vente.produit.prix) : "N/A"}
+                    {vente.produit || vente.prixUnitaire !== undefined
+                      ? formatCurrency(getUnitPrice(vente))
+                      : "N/A"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {formatCurrency(vente.prixTotal)}
+                    {formatCurrency(getTotalPrice(vente))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">

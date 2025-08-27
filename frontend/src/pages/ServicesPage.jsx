@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import { useAuth } from "../hooks/useAuth";
-import { useProduits } from "../hooks/useApi";
-import { PRODUCT_CATEGORIES } from "../utils/constants";
+import apiService from "../services/api";
 import "../styles/pages/services.css";
 
 const ServicesPage = () => {
   const { isAdmin } = useAuth();
-  const {
-    produits,
-    loading,
-    error,
-    fetchProduits,
-    createProduit,
-    updateProduit,
-    deleteProduit,
-    clearError,
-  } = useProduits();
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const [showForm, setShowForm] = useState(false);
   const [editingService, setEditingService] = useState(null);
@@ -26,12 +20,36 @@ const ServicesPage = () => {
     nom: "",
     description: "",
     prix: "",
-    categorie: "",
+    categorieId: "",
     isService: true,
   });
 
-  // Filtrer seulement les services
-  const services = produits.filter((p) => p.isService === true);
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await apiService.getServices();
+      setServices(res.services || []);
+    } catch (e) {
+      setError(e.message || "Erreur");
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: e.message || "Erreur",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const res = await apiService.getCategories();
+      setCategories(res.categories || []);
+    } catch (_) {
+      // ignore
+    }
+  };
 
   // Données de démonstration pour tester l'affichage
   const demoServices = [
@@ -74,8 +92,9 @@ const ServicesPage = () => {
   const displayServices = services.length > 0 ? services : demoServices;
 
   useEffect(() => {
-    fetchProduits();
-  }, [fetchProduits]);
+    loadServices();
+    loadCategories();
+  }, []);
 
   // Rediriger si pas admin
   useEffect(() => {
@@ -88,15 +107,35 @@ const ServicesPage = () => {
     e.preventDefault();
     try {
       if (editingService) {
-        await updateProduit(editingService.id, formData);
+        await apiService.updateService(editingService.id, {
+          nom: formData.nom,
+          description: formData.description,
+          prixVenteTTC: Number(formData.prix),
+          categorieId: formData.categorieId
+            ? Number(formData.categorieId)
+            : undefined,
+        });
         setEditingService(null);
       } else {
-        await createProduit(formData);
+        await apiService.createService({
+          nom: formData.nom,
+          description: formData.description,
+          prixVenteTTC: Number(formData.prix),
+          categorieId: formData.categorieId
+            ? Number(formData.categorieId)
+            : undefined,
+        });
       }
       setShowForm(false);
       resetForm();
+      await loadServices();
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur lors de la sauvegarde",
+      });
     }
   };
 
@@ -115,9 +154,15 @@ const ServicesPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) {
       try {
-        await deleteProduit(id);
+        await apiService.deleteService(id);
+        await loadServices();
       } catch (error) {
         console.error("Erreur lors de la suppression:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Échec",
+          text: error?.message || "Erreur lors de la suppression",
+        });
       }
     }
   };
@@ -133,7 +178,7 @@ const ServicesPage = () => {
       nom: "",
       description: "",
       prix: "",
-      categorie: "",
+      categorieId: "",
       isService: true,
     });
   };
@@ -148,11 +193,15 @@ const ServicesPage = () => {
 
   // Filtrer et trier les services
   const filteredServices = displayServices
-    .filter(
-      (service) =>
-        service.nom.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (!selectedCategory || service.categorie === selectedCategory)
-    )
+    .filter((service) => {
+      const matchesName = service.nom
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory
+        ? String(service.categorieId || "") === String(selectedCategory)
+        : true;
+      return matchesName && matchesCategory;
+    })
     .sort((a, b) => {
       switch (sortBy) {
         case "nom":
@@ -218,9 +267,9 @@ const ServicesPage = () => {
                   className="border border-gray-300 rounded-md px-3 py-2"
                 >
                   <option value="">Toutes les catégories</option>
-                  {PRODUCT_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.nom}
                     </option>
                   ))}
                 </select>
@@ -288,15 +337,15 @@ const ServicesPage = () => {
                       Catégorie
                     </label>
                     <select
-                      name="categorie"
-                      value={formData.categorie}
+                      name="categorieId"
+                      value={formData.categorieId}
                       onChange={handleInputChange}
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
                     >
                       <option value="">Sélectionner une catégorie</option>
-                      {PRODUCT_CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.nom}
                         </option>
                       ))}
                     </select>
@@ -359,7 +408,10 @@ const ServicesPage = () => {
               <div className="p-8 text-center">
                 <p className="text-red-600 mb-4">{error}</p>
                 <button
-                  onClick={clearError}
+                  onClick={async () => {
+                    setError(null);
+                    await loadServices();
+                  }}
                   className="text-blue-600 hover:text-blue-800"
                 >
                   Réessayer
@@ -425,7 +477,9 @@ const ServicesPage = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {service.categorie || "Non catégorisé"}
+                            {categories.find(
+                              (c) => c.id === service.categorieId
+                            )?.nom || "Non catégorisé"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

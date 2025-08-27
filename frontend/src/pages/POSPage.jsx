@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Swal from "sweetalert2";
 import api from "../services/api";
 
 import { useAuth } from "../hooks/useAuth";
@@ -13,7 +14,8 @@ const POSPage = () => {
   const [heure, setHeure] = useState(new Date().toLocaleTimeString());
   const [ticketNumber, setTicketNumber] = useState(1);
   const lastDateRef = useRef(new Date().toISOString().slice(0, 10));
-  const [filtreCategorie, setFiltreCategorie] = useState("");
+  const [filtreCategorie, setFiltreCategorie] = useState(""); // id de catégorie
+  const [categories, setCategories] = useState([]);
   const [recherche, setRecherche] = useState("");
   const { user } = useAuth();
 
@@ -28,7 +30,25 @@ const POSPage = () => {
         setLoading(false);
       }
     };
-    fetchProduits();
+    const fetchCategories = async () => {
+      try {
+        const res = await api.getCategories();
+        setCategories(res.categories || []);
+      } catch (_) {
+        setCategories([]);
+      }
+    };
+
+    const reloadData = async () => {
+      await Promise.all([fetchProduits(), fetchCategories()]);
+    };
+
+    reloadData();
+    // Rafraîchir quand l'onglet revient en focus
+    const onVis = () => {
+      if (document.visibilityState === "visible") reloadData();
+    };
+    document.addEventListener("visibilitychange", onVis);
     // Initialiser le compteur de tickets depuis localStorage (par jour)
     const initTicketCounter = () => {
       const todayISO = new Date().toISOString().slice(0, 10);
@@ -71,7 +91,10 @@ const POSPage = () => {
         setTicketNumber(1);
       }
     }, 1000);
-    return () => clearInterval(timer);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      clearInterval(timer);
+    };
   }, []);
 
   // Ajouter un produit au panier par code article
@@ -95,7 +118,15 @@ const POSPage = () => {
       alert(`Stock insuffisant. Disponible: ${produit.stock}`);
       return;
     }
-    setPanier((prev) => [...prev, { ...produit, quantite }]);
+    setPanier((prev) => [
+      {
+        ...produit,
+        prix: produit.prixVenteTTC ?? produit.prix ?? 0,
+        quantite,
+        remisePercent: 0,
+      },
+      ...prev,
+    ]);
     setCodeArticle("");
     setQuantite(1);
   };
@@ -110,7 +141,15 @@ const POSPage = () => {
       alert("Stock insuffisant");
       return;
     }
-    setPanier((prev) => [...prev, { ...produit, quantite: 1 }]);
+    setPanier((prev) => [
+      {
+        ...produit,
+        prix: produit.prixVenteTTC ?? produit.prix ?? 0,
+        quantite: 1,
+        remisePercent: 0,
+      },
+      ...prev,
+    ]);
   };
 
   // Retirer un produit du panier
@@ -125,12 +164,14 @@ const POSPage = () => {
     );
   };
 
-  // Calcul du total du panier avec remise
-  const total = panier.reduce(
-    (acc, prod) =>
-      acc + (prod.prix || 0) * (prod.quantite || 1) - (prod.remise || 0),
-    0
-  );
+  // Calcul du total du panier avec remise (%)
+  const total = panier.reduce((acc, prod) => {
+    const unit = Number(prod.prix || 0);
+    const qty = Number(prod.quantite || 1);
+    const rate = Math.min(100, Math.max(0, Number(prod.remisePercent || 0)));
+    const line = unit * qty * (1 - rate / 100);
+    return acc + line;
+  }, 0);
   const [montantEncaisse, setMontantEncaisse] = useState(0);
   // Calcul du rendu
   const montantRendu = montantEncaisse > 0 ? montantEncaisse - total : 0;
@@ -175,7 +216,13 @@ const POSPage = () => {
           api.createVente({ produitId: item.id, quantite: item.quantite })
         )
       );
-      alert("Paiement effectué et ventes enregistrées !");
+      await Swal.fire({
+        icon: "success",
+        title: "Paiement effectué",
+        text: "Ventes enregistrées avec succès.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       setPanier([]);
       setMontantEncaisse(0);
       const list = await api.getProduits();
@@ -185,15 +232,16 @@ const POSPage = () => {
     } catch (err) {
       const msg =
         err?.message || "Erreur lors de l'enregistrement de la vente.";
-      alert(msg);
+      Swal.fire({ icon: "error", title: "Échec", text: msg });
     }
   };
 
-  // Modifier la remise sur une ligne du panier
-  const changerRemise = (index, remise) => {
+  // Modifier la remise (%) sur une ligne du panier
+  const changerRemise = (index, remisePercent) => {
+    const r = Math.min(100, Math.max(0, Number(remisePercent)));
     setPanier(
       panier.map((item, i) =>
-        i === index ? { ...item, remise: Number(remise) } : item
+        i === index ? { ...item, remisePercent: r } : item
       )
     );
   };
@@ -201,13 +249,19 @@ const POSPage = () => {
   // Impression du ticket (PDF côté serveur)
   const imprimerTicket = async () => {
     try {
-      const items = panier.map((p) => ({
-        id: p.id,
-        nom: p.nom,
-        prix: p.prix,
-        quantite: p.quantite,
-        remise: p.remise || 0,
-      }));
+      const items = panier.map((p) => {
+        const unit = Number(p.prix || 0);
+        const qty = Number(p.quantite || 1);
+        const rate = Math.min(100, Math.max(0, Number(p.remisePercent || 0)));
+        const remiseMontant = unit * qty * (rate / 100);
+        return {
+          id: p.id,
+          nom: p.nom,
+          prix: unit,
+          quantite: qty,
+          remise: remiseMontant,
+        };
+      });
       const payload = {
         items,
         total,
@@ -239,31 +293,16 @@ const POSPage = () => {
       // Incrémenter le compteur de tickets pour aujourd'hui
       incrementDailyTicketCounter();
     } catch (e) {
-      alert(e.message || "Erreur impression ticket");
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: e.message || "Erreur impression ticket",
+      });
     }
   };
 
-  // Catégories fictives
-  const categories = [
-    "SERVICES",
-    "IMPRESSION",
-    "PHOTOCOPIE",
-    "PLASTIFICATION",
-    "RELIURE",
-    "SCOLARITE",
-  ];
-
-  const serviceCategories = new Set([
-    "SERVICES",
-    "IMPRESSION",
-    "PHOTOCOPIE",
-    "PLASTIFICATION",
-    "RELIURE",
-    "SCOLARITE",
-  ]);
-
-  const isServiceProduct = (p) =>
-    p?.isService === true || serviceCategories.has(p?.categorie);
+  // Un service est produit.isService === true
+  const isServiceProduct = (p) => p?.isService === true;
 
   // Logout
 
@@ -277,17 +316,29 @@ const POSPage = () => {
     }).format(val || 0);
 
   const produitsFiltres = produits
-    .filter(
-      (p) =>
-        !filtreCategorie ||
-        (p.categorie &&
-          p.categorie.toUpperCase() === filtreCategorie.toUpperCase())
-    )
+    .filter((p) => {
+      // Si le texte saisi correspond au code-barres, on garde le produit
+      if (
+        recherche &&
+        p.code &&
+        String(p.code).toLowerCase().includes(recherche.toLowerCase())
+      ) {
+        return true;
+      }
+      if (!filtreCategorie) return true;
+      // Filtrer uniquement les services de la catégorie sélectionnée
+      return (
+        p.isService === true &&
+        String(p.categorieId || "") === String(filtreCategorie)
+      );
+    })
     .filter(
       (p) =>
         !recherche ||
         p.nom.toLowerCase().includes(recherche.toLowerCase()) ||
-        String(p.id).includes(recherche)
+        String(p.id).includes(recherche) ||
+        (p.code &&
+          String(p.code).toLowerCase().includes(recherche.toLowerCase()))
     );
 
   return (
@@ -357,7 +408,7 @@ const POSPage = () => {
 
             <input
               type="text"
-              placeholder="Rechercher un produit..."
+              placeholder="Rechercher par nom ou code-barres..."
               value={recherche}
               onChange={(e) => setRecherche(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 flex-1 min-w-[200px]"
@@ -402,7 +453,7 @@ const POSPage = () => {
                     Prix
                   </th>
                   <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
-                    Remise
+                    Remise %
                   </th>
                   <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
                     Montant
@@ -451,20 +502,33 @@ const POSPage = () => {
                           </button>
                         </div>
                       </td>
-                      <td className="px-3 py-2">{formatTND(prod.prix)}</td>
                       <td className="px-3 py-2">
-                        <input
-                          type="number"
-                          min={0}
-                          value={prod.remise || 0}
-                          onChange={(e) => changerRemise(i, e.target.value)}
-                          className="w-24 border border-gray-300 rounded px-2 py-1"
-                        />
+                        {formatTND(prod.prixVenteTTC ?? prod.prix)}
                       </td>
                       <td className="px-3 py-2">
-                        {formatTND(
-                          prod.prix * prod.quantite - (prod.remise || 0)
-                        )}
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={prod.remisePercent || 0}
+                            onChange={(e) => changerRemise(i, e.target.value)}
+                            className="w-20 border border-gray-300 rounded px-2 py-1"
+                          />
+                          <span className="text-xs text-gray-600">%</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2">
+                        {(() => {
+                          const unit = Number(prod.prix || 0);
+                          const qty = Number(prod.quantite || 1);
+                          const rate = Math.min(
+                            100,
+                            Math.max(0, Number(prod.remisePercent || 0))
+                          );
+                          const line = unit * qty * (1 - rate / 100);
+                          return formatTND(line);
+                        })()}
                       </td>
                       <td className="px-3 py-2 text-right">
                         <button
@@ -540,6 +604,20 @@ const POSPage = () => {
 
           {/* Catégories */}
           <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm text-gray-600">
+                Catégories de services
+              </div>
+              <button
+                onClick={async () => {
+                  const res = await api.getCategories().catch(() => null);
+                  if (res && res.categories) setCategories(res.categories);
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Rafraîchir
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 className={`px-3 py-2 rounded text-center font-medium text-white transition-all ${
@@ -551,19 +629,26 @@ const POSPage = () => {
               >
                 Toutes
               </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  className={`px-3 py-2 rounded text-center font-medium text-white transition-all ${
-                    filtreCategorie === cat
-                      ? "bg-gradient-to-b from-blue-400 to-blue-600 shadow-md"
-                      : "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600"
-                  }`}
-                  onClick={() => setFiltreCategorie(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
+              {categories
+                .filter((cat) =>
+                  // Afficher seulement les catégories qui ont au moins un service
+                  produits.some(
+                    (p) => p.isService === true && p.categorieId === cat.id
+                  )
+                )
+                .map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`px-3 py-2 rounded text-center font-medium text-white transition-all ${
+                      String(filtreCategorie) === String(cat.id)
+                        ? "bg-gradient-to-b from-blue-400 to-blue-600 shadow-md"
+                        : "bg-gradient-to-b from-blue-300 to-blue-500 hover:from-blue-400 hover:to-blue-600"
+                    }`}
+                    onClick={() => setFiltreCategorie(cat.id)}
+                  >
+                    {cat.nom}
+                  </button>
+                ))}
             </div>
           </div>
 
@@ -606,7 +691,7 @@ const POSPage = () => {
                       {prod.nom}
                     </div>
                     <div className="text-xs opacity-90 mt-1">
-                      {formatTND(prod.prix)}
+                      {formatTND(prod.prixVenteTTC ?? prod.prix)}
                     </div>
                   </button>
                 );

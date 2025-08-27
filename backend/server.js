@@ -15,6 +15,8 @@ const clientRoutes = require("./routes/clients");
 const fournisseurRoutes = require("./routes/fournisseurs");
 const posRoutes = require("./routes/pos");
 const zoneRoutes = require("./routes/zones");
+const categorieRoutes = require("./routes/categories");
+const serviceRoutes = require("./routes/services");
 const vendeurRoutes = require("./routes/vendeurs");
 
 const app = express();
@@ -69,6 +71,8 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/fournisseurs", fournisseurRoutes);
 app.use("/api/pos", posRoutes);
 app.use("/api/zones", zoneRoutes);
+app.use("/api/categories", categorieRoutes);
+app.use("/api/services", serviceRoutes);
 
 // Middleware de gestion des erreurs 404
 app.use("*", (req, res) => {

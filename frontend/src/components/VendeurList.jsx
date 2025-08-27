@@ -36,7 +36,7 @@ const VendeurList = ({ vendeurs, onEdit, onDelete }) => {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg">
+    <div className="card card-hoverable">
       <div className="px-4 py-5 sm:p-6">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -85,9 +85,7 @@ const VendeurList = ({ vendeurs, onEdit, onDelete }) => {
                     <div className="text-sm text-gray-900">{vendeur.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                      Vendeur
-                    </span>
+                    <span className="badge badge-green">Vendeur</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {formatDate(vendeur.createdAt)}
@@ -119,4 +117,3 @@ const VendeurList = ({ vendeurs, onEdit, onDelete }) => {
 };
 
 export default VendeurList;
-

@@ -113,6 +113,46 @@ class ApiService {
     return this.request("/ventes");
   }
 
+  // Services (produits isService=true)
+  async getServices() {
+    return this.request("/services");
+  }
+  async createService(data) {
+    return this.request("/services", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+  async updateService(id, data) {
+    return this.request(`/services/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteService(id) {
+    return this.request(`/services/${id}`, { method: "DELETE" });
+  }
+
+  // Catégories
+  async getCategories() {
+    return this.request("/categories");
+  }
+  async createCategorie(data) {
+    return this.request("/categories", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+  async updateCategorie(id, data) {
+    return this.request(`/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+  async deleteCategorie(id) {
+    return this.request(`/categories/${id}`, { method: "DELETE" });
+  }
+
   async getVente(id) {
     return this.request(`/ventes/${id}`);
   }

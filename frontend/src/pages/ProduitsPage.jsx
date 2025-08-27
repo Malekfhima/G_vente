@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import { useAuth } from "../hooks/useAuth";
 import { useProduits } from "../hooks/useApi";
 import ProduitForm from "../components/ProduitForm";
@@ -41,6 +42,11 @@ const ProduitsPage = () => {
       setShowForm(false);
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur lors de la sauvegarde",
+      });
     }
   };
 
@@ -50,12 +56,29 @@ const ProduitsPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
-      try {
-        await deleteProduit(id);
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
-      }
+    const res = await Swal.fire({
+      icon: "warning",
+      title: "Supprimer ce produit ?",
+      showCancelButton: true,
+      confirmButtonText: "Supprimer",
+      cancelButtonText: "Annuler",
+    });
+    if (!res.isConfirmed) return;
+    try {
+      await deleteProduit(id);
+      Swal.fire({
+        icon: "success",
+        title: "Supprimé",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur lors de la suppression",
+      });
     }
   };
 
@@ -92,10 +115,17 @@ const ProduitsPage = () => {
       }
     } catch (error) {
       console.error("Erreur lors de l'ajout par code-barres:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur code-barres",
+      });
     }
   };
 
   const filteredProduits = produits
+    // Exclure les services: n'afficher que les produits physiques
+    .filter((p) => p.isService !== true)
     .filter((produit) => {
       const matchesSearch =
         produit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||

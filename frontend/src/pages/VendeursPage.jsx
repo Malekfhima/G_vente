@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import VendeurForm from "../components/VendeurForm";
 import VendeurList from "../components/VendeurList";
 import apiService from "../services/api";
+import Swal from "sweetalert2";
 import { useAuth } from "../hooks/useAuth";
 
 const VendeursPage = () => {
@@ -109,9 +110,14 @@ const VendeursPage = () => {
   };
 
   const handleDeleteVendeur = async (vendeurId) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce vendeur ?")) {
-      return;
-    }
+    const res = await Swal.fire({
+      icon: "warning",
+      title: "Supprimer ce vendeur ?",
+      showCancelButton: true,
+      confirmButtonText: "Supprimer",
+      cancelButtonText: "Annuler",
+    });
+    if (!res.isConfirmed) return;
 
     try {
       await apiService.request(`/vendeurs/${vendeurId}`, {
@@ -120,7 +126,11 @@ const VendeursPage = () => {
       setVendeurs((prev) => prev.filter((v) => v.id !== vendeurId));
     } catch (error) {
       console.error("Erreur lors de la suppression du vendeur:", error);
-      alert("Erreur lors de la suppression du vendeur");
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur lors de la suppression",
+      });
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import { useAuth } from "../hooks/useAuth";
 import { useVentes, useProduits } from "../hooks/useApi";
 import VenteForm from "../components/VenteForm";
@@ -43,6 +44,11 @@ const VentesPage = () => {
       setShowForm(false);
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur lors de la sauvegarde",
+      });
     }
   };
 
@@ -53,12 +59,29 @@ const VentesPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette vente ?")) {
-      try {
-        await deleteVente(id);
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
-      }
+    const res = await Swal.fire({
+      icon: "warning",
+      title: "Supprimer cette vente ?",
+      showCancelButton: true,
+      confirmButtonText: "Supprimer",
+      cancelButtonText: "Annuler",
+    });
+    if (!res.isConfirmed) return;
+    try {
+      await deleteVente(id);
+      Swal.fire({
+        icon: "success",
+        title: "Supprimée",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Échec",
+        text: error?.message || "Erreur lors de la suppression",
+      });
     }
   };
 
