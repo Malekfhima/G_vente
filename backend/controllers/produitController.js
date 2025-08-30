@@ -129,6 +129,7 @@ const createProduit = async (req, res) => {
         reference,
         codeBarre: finalCodeBarre,
         prixAchatHT: prixAchatHT !== undefined ? parseFloat(prixAchatHT) : null,
+        prix: parseFloat(prixVenteTTC), // Mise à jour du champ prix
         prixVenteTTC: parseFloat(prixVenteTTC),
         tauxTVA: tauxTVA !== undefined ? parseFloat(tauxTVA) : null,
         stock: parseInt(stockValue),
@@ -238,6 +239,7 @@ const updateProduit = async (req, res) => {
         reference,
         prixAchatHT:
           prixAchatHT !== undefined ? parseFloat(prixAchatHT) : undefined,
+        prix: prixVenteTTC !== undefined ? parseFloat(prixVenteTTC) : undefined, // Mise à jour du champ prix
         prixVenteTTC:
           prixVenteTTC !== undefined ? parseFloat(prixVenteTTC) : undefined,
         tauxTVA: tauxTVA !== undefined ? parseFloat(tauxTVA) : undefined,

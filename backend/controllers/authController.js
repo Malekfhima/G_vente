@@ -144,12 +144,6 @@ const getProfile = async (req, res) => {
   }
 };
 
-module.exports = {
-  register,
-  login,
-  getProfile,
-};
-
 // Changer le mot de passe (utilisateur connecté)
 const changePassword = async (req, res) => {
   try {
@@ -157,12 +151,9 @@ const changePassword = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Champs requis: currentPassword, newPassword, confirmPassword",
-        });
+      return res.status(400).json({
+        message: "Champs requis: currentPassword, newPassword, confirmPassword",
+      });
     }
 
     if (newPassword !== confirmPassword) {
@@ -172,12 +163,9 @@ const changePassword = async (req, res) => {
     }
 
     if (newPassword.length < 6) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Le nouveau mot de passe doit contenir au moins 6 caractères",
-        });
+      return res.status(400).json({
+        message: "Le nouveau mot de passe doit contenir au moins 6 caractères",
+      });
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -203,4 +191,9 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports.changePassword = changePassword;
+module.exports = {
+  register,
+  login,
+  getProfile,
+  changePassword,
+};

@@ -38,6 +38,7 @@ const VentesPage = () => {
         const newVente = await createVente(venteData);
         // Afficher le ticket pour la nouvelle vente
         if (newVente) {
+        
           setLastVente(newVente);
         }
       }

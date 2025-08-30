@@ -1,20 +1,30 @@
 #!/bin/bash
 
 echo "========================================"
-echo "    DEMARRAGE DU PROJET GESTION VENTE"
+echo "    DEMARRAGE AMELIORE - GESTION VENTE"
 echo "========================================"
 echo
 
-echo "[1/3] Demarrage du backend..."
+echo "[1/4] Verification de l'installation..."
+node check-installation.js
+if [ $? -ne 0 ]; then
+  echo
+  echo "❌ Probleme detecte lors de la verification"
+  echo "Veuillez corriger les problemes avant de continuer"
+  exit 1
+fi
+
+echo
+echo "[2/4] Demarrage du backend..."
 cd backend
-gnome-terminal --title="Backend" -- bash -c "npm install && npm run dev; exec bash" &
+gnome-terminal --title="Backend" -- bash -c "npm run dev; exec bash" &
 
-echo "[2/3] Attente du demarrage du backend..."
-sleep 10
+echo "[3/4] Attente du demarrage du backend..."
+sleep 15
 
-echo "[3/3] Demarrage du frontend..."
+echo "[4/4] Demarrage du frontend..."
 cd ../frontend
-gnome-terminal --title="Frontend" -- bash -c "npm install && npm run dev; exec bash" &
+gnome-terminal --title="Frontend" -- bash -c "npm run dev; exec bash" &
 
 echo
 echo "========================================"
@@ -30,4 +40,3 @@ echo "- Vendeur: vendeur@gestion-vente.com / vendeur123"
 echo
 echo "Appuyez sur Entree pour fermer..."
 read
-

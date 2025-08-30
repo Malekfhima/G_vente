@@ -1,11 +1,3 @@
-// ...existing code...
-const TestPage = () => (
-  <div style={{ padding: 40, textAlign: "center" }}>
-    <h1 style={{ color: "#3182ce" }}>Test Frontend OK</h1>
-    <p>Si tu vois ce message, le frontend fonctionne.</p>
-  </div>
-);
-<Route path="/test" element={<TestPage />} />;
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth.jsx";
@@ -25,6 +17,14 @@ import ZonesPage from "./pages/ZonesPage";
 import ProfilePage from "./pages/ProfilePage";
 import CategoriesPage from "./pages/CategoriesPage";
 import AdminRoute from "./components/AdminRoute";
+
+// Composant de test pour vérifier le fonctionnement du frontend
+const TestPage = () => (
+  <div style={{ padding: 40, textAlign: "center" }}>
+    <h1 style={{ color: "#3182ce" }}>Test Frontend OK</h1>
+    <p>Si tu vois ce message, le frontend fonctionne.</p>
+  </div>
+);
 
 // Composant pour les routes protégées
 const ProtectedRoute = ({ children }) => {
@@ -187,9 +187,11 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Route par défaut - affiche HomePage si non connecté */}
-      <Route path={ROUTES.HOME} element={<HomePage />} />
-      <Route path="*" element={<HomePage />} />
+      {/* Route de test */}
+      <Route path="/test" element={<TestPage />} />
+
+      {/* Route par défaut - redirection vers l'accueil */}
+      <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
     </Routes>
   );
 };

@@ -12,6 +12,7 @@
     "start": "cd backend && npm start",
     "db:setup": "cd backend && npm run db:generate && npm run db:push && npm run db:seed",
     "db:reset": "cd backend && npm run db:push && npm run db:seed",
+    "check": "node check-installation.js",
     "test": "echo \"Tests non configurés\" && exit 0"
   },
   "keywords": [

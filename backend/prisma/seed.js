@@ -267,6 +267,7 @@ async function main() {
       update: {},
       create: {
         ...produitData,
+        prixVenteTTC: produitData.prix, // Assurer la cohérence des prix
         codeBarre,
         // Ces éléments sont des services, on laisse stock à 0
       },
@@ -281,22 +282,34 @@ async function main() {
   // Création d'une vente groupée de test (transactionId unique)
   const { randomUUID } = require("crypto");
   const transactionId = randomUUID();
-  const ventes = [
-    { quantite: 2, userId: vendeur.id, produitId: 3 },
-    { quantite: 1, userId: vendeur.id, produitId: 5 },
-  ];
 
-  for (const item of ventes) {
-    const produit = await prisma.produit.findUnique({
-      where: { id: item.produitId },
-    });
-    const prixTotal = (produit?.prix || 0) * item.quantite;
-    const vente = await prisma.vente.create({
-      data: { ...item, prixTotal, transactionId },
-    });
-    console.log(
-      `✅ Vente (groupée) créée: ${vente.quantite}x produit ID ${vente.produitId}`
-    );
+  // Récupérer les premiers produits créés pour les ventes de test
+  const produitsDisponibles = await prisma.produit.findMany({
+    take: 5,
+    orderBy: { id: "asc" },
+  });
+
+  if (produitsDisponibles.length >= 2) {
+    const ventes = [
+      { quantite: 2, userId: vendeur.id, produitId: produitsDisponibles[2].id }, // 3ème produit
+      { quantite: 1, userId: vendeur.id, produitId: produitsDisponibles[4].id }, // 5ème produit
+    ];
+
+    for (const item of ventes) {
+      const produit = await prisma.produit.findUnique({
+        where: { id: item.produitId },
+      });
+      const prixTotal =
+        (produit?.prixVenteTTC || produit?.prix || 0) * item.quantite;
+      const vente = await prisma.vente.create({
+        data: { ...item, prixTotal, transactionId },
+      });
+      console.log(
+        `✅ Vente (groupée) créée: ${vente.quantite}x produit ID ${vente.produitId}`
+      );
+    }
+  } else {
+    console.log("⚠️ Pas assez de produits pour créer des ventes de test");
   }
 
   console.log("🎉 Seeding terminé avec succès!");

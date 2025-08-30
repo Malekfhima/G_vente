@@ -9,7 +9,7 @@ cd backend
 start "Backend" cmd /k "npm install && npm run dev"
 
 echo [2/3] Attente du demarrage du backend...
-timeout /t 5 /nobreak > nul
+timeout /t 10 /nobreak > nul
 
 echo [3/3] Demarrage du frontend...
 cd ..\frontend

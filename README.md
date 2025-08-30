@@ -14,12 +14,14 @@ Une application complète de gestion des ventes avec authentification, gestion d
 ## 🛠️ Technologies Utilisées
 
 ### Backend
+
 - Node.js + Express.js
 - Prisma ORM avec SQLite
 - JWT pour l'authentification
 - Bcrypt pour le hachage des mots de passe
 
 ### Frontend
+
 - React 18 avec Vite
 - React Router pour la navigation
 - Tailwind CSS pour le styling
@@ -50,17 +52,37 @@ gestion-vente/
 ## 🚀 Installation et Exécution
 
 ### Prérequis
-- Node.js (version 18 ou supérieure)
+
+- Node.js (version 16 ou supérieure)
 - npm ou yarn
 - Git
 
 ### 1. Cloner le projet
+
 ```bash
 git clone https://github.com/Malekfhima/G_vente.git
 cd gestion-vente
 ```
 
-### 2. Configuration du Backend
+### 2. Installation automatique (recommandée)
+
+```bash
+# Installation de toutes les dépendances
+npm run install:all
+
+# Vérification de l'installation
+npm run check
+
+# Configuration de la base de données
+npm run db:setup
+
+# Démarrage de l'application
+npm run dev
+```
+
+### 3. Installation manuelle
+
+#### Configuration du Backend
 
 ```bash
 cd backend
@@ -71,22 +93,16 @@ npm install
 # Créer le fichier .env (copier .env.example)
 cp .env.example .env
 
-# Éditer le fichier .env avec vos configurations
-# DATABASE_URL="postgresql://username:password@localhost:5432/gestion_vente"
-# JWT_SECRET="votre_secret_jwt_tres_securise_ici"
-
 # Initialiser la base de données
-npx prisma generate
-npx prisma db push
-
-# Optionnel : Ajouter des données de test
-npx prisma db seed
+npm run db:generate
+npm run db:push
+npm run db:seed
 
 # Démarrer le serveur
 npm run dev
 ```
 
-### 3. Configuration du Frontend
+#### Configuration du Frontend
 
 ```bash
 cd frontend
@@ -94,11 +110,40 @@ cd frontend
 # Installer les dépendances
 npm install
 
+# Créer le fichier .env (copier .env.example)
+cp .env.example .env
+
 # Démarrer l'application
 npm run dev
 ```
 
-### 4. Accès à l'application
+### 4. Scripts de démarrage automatique
+
+#### Windows
+
+```bash
+# Démarrage simple
+start.bat
+
+# Démarrage avec vérification
+start-improved.bat
+```
+
+#### Linux/Mac
+
+```bash
+# Rendre le script exécutable
+chmod +x start.sh
+chmod +x start-improved.sh
+
+# Démarrage simple
+./start.sh
+
+# Démarrage avec vérification
+./start-improved.sh
+```
+
+### 5. Accès à l'application
 
 - **Frontend** : http://localhost:3000
 - **Backend API** : http://localhost:5000
@@ -107,6 +152,7 @@ npm run dev
 ## 🔧 Scripts Disponibles
 
 ### Backend
+
 ```bash
 npm run dev          # Démarrage en mode développement
 npm run start        # Démarrage en mode production
@@ -115,6 +161,7 @@ npm run test         # Exécution des tests
 ```
 
 ### Frontend
+
 ```bash
 npm run dev          # Démarrage en mode développement
 npm run build        # Build de l'application
@@ -150,6 +197,7 @@ L'application utilise JWT pour l'authentification :
 ## 🚨 Dépannage
 
 ### Erreur de connexion à la base de données
+
 ```bash
 # Vérifier que la base est accessible
 npx prisma db push
@@ -159,10 +207,12 @@ npx prisma migrate reset
 ```
 
 ### Erreur CORS
+
 - Vérifier que `FRONTEND_URL` est correctement configuré dans `.env`
 - S'assurer que le frontend tourne sur le bon port
 
 ### Erreur JWT
+
 - Vérifier que `JWT_SECRET` est défini dans `.env`
 - Redémarrer le serveur après modification
 
@@ -181,10 +231,10 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 ## 📞 Support
 
 Pour toute question ou problème :
+
 - Ouvrir une issue sur GitHub
 - Contacter l'équipe de développement
 
 ---
 
 **Bon développement ! 🎉**
-

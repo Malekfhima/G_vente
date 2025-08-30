@@ -9,18 +9,34 @@
 ## 🔧 Installation Initiale
 
 ### 1. Installation de toutes les dépendances
+
 ```bash
 npm run install:all
 ```
 
 Cette commande installe les dépendances pour :
+
 - Le projet principal
 - Le backend (Node.js + Express)
 - Le frontend (React + Vite)
 
+### 2. Vérification de l'installation
+
+```bash
+npm run check
+```
+
+Cette commande vérifie :
+
+- La version de Node.js et npm
+- La présence des fichiers de configuration
+- La présence des fichiers d'environnement
+- La présence des dépendances installées
+
 ## 🚀 Démarrage du Projet
 
 ### Option 1: Démarrage automatique (recommandé)
+
 ```bash
 # Windows
 start.bat
@@ -30,9 +46,21 @@ chmod +x start.sh
 ./start.sh
 ```
 
+### Option 1b: Démarrage avec vérification (recommandé)
+
+```bash
+# Windows
+start-improved.bat
+
+# Linux/Mac
+chmod +x start-improved.sh
+./start-improved.sh
+```
+
 ### Option 2: Démarrage manuel
 
 #### Terminal 1 - Backend
+
 ```bash
 cd backend
 npm install
@@ -40,6 +68,7 @@ npm run dev
 ```
 
 #### Terminal 2 - Frontend
+
 ```bash
 cd frontend
 npm install
@@ -47,6 +76,7 @@ npm run dev
 ```
 
 ### Option 3: Démarrage simultané
+
 ```bash
 npm run dev
 ```
@@ -54,11 +84,13 @@ npm run dev
 ## 🗄️ Configuration de la Base de Données
 
 ### Configuration initiale
+
 ```bash
 npm run db:setup
 ```
 
 ### Réinitialisation de la base
+
 ```bash
 npm run db:reset
 ```
@@ -72,11 +104,13 @@ npm run db:reset
 ## 👥 Comptes de Test
 
 ### Administrateur
+
 - **Email**: admin@gestion-vente.com
 - **Mot de passe**: admin123
 - **Rôle**: admin (accès complet)
 
 ### Vendeur
+
 - **Email**: vendeur@gestion-vente.com
 - **Mot de passe**: vendeur123
 - **Rôle**: user (accès limité)
@@ -84,8 +118,10 @@ npm run db:reset
 ## 🔍 Scripts Disponibles
 
 ### Scripts Principaux
+
 ```bash
 npm run install:all      # Installation de toutes les dépendances
+npm run check            # Vérification de l'installation
 npm run dev              # Démarrage simultané backend + frontend
 npm run dev:backend      # Démarrage du backend uniquement
 npm run dev:frontend     # Démarrage du frontend uniquement
@@ -94,6 +130,7 @@ npm run start            # Démarrage du backend en production
 ```
 
 ### Scripts de Base de Données
+
 ```bash
 npm run db:setup         # Configuration initiale de la base
 npm run db:reset         # Réinitialisation de la base
@@ -102,6 +139,7 @@ npm run db:reset         # Réinitialisation de la base
 ## 🛠️ Développement
 
 ### Backend
+
 ```bash
 cd backend
 npm run dev              # Démarrage avec nodemon
@@ -112,6 +150,7 @@ npm run db:seed          # Ajout de données de test
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm run dev              # Serveur de développement Vite
@@ -136,6 +175,7 @@ docker-compose down
 ## 🚨 Dépannage
 
 ### Erreur de port déjà utilisé
+
 ```bash
 # Vérifier les processus sur les ports
 netstat -ano | findstr :5000
@@ -149,6 +189,7 @@ kill -9 <PID>
 ```
 
 ### Erreur de base de données
+
 ```bash
 cd backend
 npm run db:push
@@ -156,6 +197,7 @@ npm run db:seed
 ```
 
 ### Erreur de dépendances
+
 ```bash
 # Nettoyer et réinstaller
 rm -rf node_modules package-lock.json
@@ -168,6 +210,7 @@ npm run install:all
 ## 📝 Variables d'Environnement
 
 ### Backend (.env)
+
 ```env
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="votre_secret_jwt_super_securise"
@@ -177,6 +220,7 @@ FRONTEND_URL="http://localhost:3000"
 ```
 
 ### Frontend (.env)
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 VITE_APP_NAME=Gestion Vente
