@@ -13,6 +13,36 @@ const listServices = async (req, res) => {
   }
 };
 
+// Liste des services groupés par catégories
+const listServicesGroupedByCategory = async (req, res) => {
+  try {
+    // Récupérer les catégories avec leurs services
+    const categories = await prisma.categorie.findMany({
+      orderBy: { nom: "asc" },
+      include: {
+        produits: { where: { isService: true }, orderBy: { nom: "asc" } },
+      },
+    });
+
+    // Récupérer les services sans catégorie
+    const uncategorized = await prisma.produit.findMany({
+      where: { isService: true, categorieId: null },
+      orderBy: { nom: "asc" },
+    });
+
+    res.json({
+      categories: categories.map((c) => ({
+        id: c.id,
+        nom: c.nom,
+        services: c.produits,
+      })),
+      sansCategorie: uncategorized,
+    });
+  } catch (e) {
+    res.status(500).json({ message: "Erreur interne du serveur" });
+  }
+};
+
 const getService = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
@@ -91,6 +121,7 @@ const deleteService = async (req, res) => {
 
 module.exports = {
   listServices,
+  listServicesGroupedByCategory,
   getService,
   createService,
   updateService,

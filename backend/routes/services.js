@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticateToken, requireAdmin } = require("../middleware/auth");
 const {
   listServices,
+  listServicesGroupedByCategory,
   getService,
   createService,
   updateService,
@@ -10,6 +11,7 @@ const {
 } = require("../controllers/serviceController");
 
 router.get("/", listServices);
+router.get("/grouped", listServicesGroupedByCategory);
 router.get("/:id", getService);
 router.post("/", authenticateToken, requireAdmin, createService);
 router.put("/:id", authenticateToken, requireAdmin, updateService);
