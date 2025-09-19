@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth.jsx";
 import { useVentes, useProduits } from "../hooks/useApi";
 import { useNavigate } from "react-router-dom";
 import { ROUTES, STATS_PERIODS } from "../utils/constants";

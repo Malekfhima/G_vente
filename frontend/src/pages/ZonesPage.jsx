@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
+import React, { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../hooks/useAuth.jsx";
 import "../styles/pages/zones.css";
 
 const ZonesPage = () => {
@@ -11,7 +11,7 @@ const ZonesPage = () => {
   const [editingZone, setEditingZone] = useState(null);
   const [stats, setStats] = useState(null);
   const [topZones, setTopZones] = useState([]);
-  const [trends, setTrends] = useState(null);
+  // const [trends, setTrends] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState("monthly");
   const [formData, setFormData] = useState({
     nom: "",
@@ -23,16 +23,7 @@ const ZonesPage = () => {
     actif: true,
   });
 
-  useEffect(() => {
-    if (!isAdmin) {
-      window.location.href = "/";
-      return;
-    }
-    fetchZones();
-    fetchStats();
-    fetchTopZones();
-    fetchTrends();
-  }, [isAdmin, selectedPeriod]);
+  // Chargements initiaux une fois les callbacks définis
 
   const fetchZones = async () => {
     try {
@@ -49,7 +40,7 @@ const ZonesPage = () => {
     }
   };
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await fetch(
         `/api/zones/stats/rentability?period=${selectedPeriod}`
@@ -61,9 +52,9 @@ const ZonesPage = () => {
     } catch (error) {
       console.error("Erreur stats:", error);
     }
-  };
+  }, [selectedPeriod]);
 
-  const fetchTopZones = async () => {
+  const fetchTopZones = useCallback(async () => {
     try {
       const response = await fetch(
         `/api/zones/stats/top?limit=5&period=${selectedPeriod}`
@@ -75,19 +66,30 @@ const ZonesPage = () => {
     } catch (error) {
       console.error("Erreur top zones:", error);
     }
-  };
+  }, [selectedPeriod]);
 
   const fetchTrends = async () => {
     try {
       const response = await fetch(`/api/zones/stats/trends?days=30`);
       if (!response.ok)
         throw new Error("Erreur lors de la récupération des tendances");
-      const data = await response.json();
-      setTrends(data);
+      await response.json();
+      // setTrends(data); // Commenté car trends n'est pas utilisé
     } catch (error) {
       console.error("Erreur tendances:", error);
     }
   };
+
+  useEffect(() => {
+    if (!isAdmin) {
+      window.location.href = "/";
+      return;
+    }
+    fetchZones();
+    fetchStats();
+    fetchTopZones();
+    fetchTrends();
+  }, [isAdmin, selectedPeriod, fetchStats, fetchTopZones]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

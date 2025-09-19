@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth.jsx";
 import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 import ProduitsPage from "./pages/ProduitsPage";
 import VentesPage from "./pages/VentesPage";

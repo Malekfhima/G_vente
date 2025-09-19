@@ -76,8 +76,11 @@ npm run check
 # Configuration de la base de données
 npm run db:setup
 
-# Démarrage de l'application
+# Démarrage de l'application (mode dev)
 npm run dev
+
+# Démarrage amélioré avec vérifications
+npm run start:improved
 ```
 
 ### 3. Installation manuelle
@@ -122,10 +125,10 @@ npm run dev
 #### Windows
 
 ```bash
-# Démarrage simple
+# Démarrage simple (ouvre 2 fenêtres)
 start.bat
 
-# Démarrage avec vérification
+# Démarrage avec vérification (ouvre 2 fenêtres)
 start-improved.bat
 ```
 
@@ -136,10 +139,10 @@ start-improved.bat
 chmod +x start.sh
 chmod +x start-improved.sh
 
-# Démarrage simple
+# Démarrage simple (ouvre 2 terminaux)
 ./start.sh
 
-# Démarrage avec vérification
+# Démarrage avec vérification (ouvre 2 terminaux)
 ./start-improved.sh
 ```
 
@@ -161,6 +164,17 @@ npm run test         # Exécution des tests
 ```
 
 ### Frontend
+
+### Racine du projet
+
+```bash
+npm run check        # Vérifie l'installation et la config
+npm run start        # Démarre uniquement le backend
+npm run dev          # Démarre backend + frontend en dev
+npm run start:improved # Vérifie puis démarre backend + frontend
+npm run test         # Lance test-application.js
+npm run test:app     # Lance test-application-improved.js
+```
 
 ```bash
 npm run dev          # Démarrage en mode développement

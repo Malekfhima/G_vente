@@ -109,7 +109,7 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-xl border border-gray-100">
+    <div className="card">
       <div className="px-6 py-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -177,7 +177,7 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
                     placeholder="Rechercher un produit par nom, catégorie ou ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="input-field"
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                     <svg
@@ -202,10 +202,8 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
                   value={formData.produitId}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                    errors.produitId
-                      ? "border-red-300 bg-red-50"
-                      : "border-gray-300"
+                  className={`select-field ${
+                    errors.produitId ? "input-error" : ""
                   }`}
                 >
                   <option value="">Sélectionner un produit</option>
@@ -244,10 +242,8 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
                     value={formData.quantite}
                     onChange={handleChange}
                     required
-                    className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                      errors.quantite
-                        ? "border-red-300 bg-red-50"
-                        : "border-gray-300"
+                    className={`input-field ${
+                      errors.quantite ? "input-error" : ""
                     }`}
                     placeholder="1"
                   />
@@ -467,7 +463,7 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center space-x-2"
+                  className="btn-secondary flex items-center space-x-2"
                 >
                   <svg
                     className="w-4 h-4"
@@ -492,7 +488,7 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
                     !formData.quantite ||
                     formData.quantite <= 0
                   }
-                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                  className="btn-success disabled:opacity-60 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
                   <svg
                     className="w-4 h-4"

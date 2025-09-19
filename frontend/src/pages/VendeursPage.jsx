@@ -3,7 +3,7 @@ import VendeurForm from "../components/VendeurForm";
 import VendeurList from "../components/VendeurList";
 import apiService from "../services/api";
 import Swal from "sweetalert2";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth.jsx";
 
 const VendeursPage = () => {
   const [vendeurs, setVendeurs] = useState([]);

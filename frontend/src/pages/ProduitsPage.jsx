@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth.jsx";
 import { useProduits } from "../hooks/useApi";
 import ProduitForm from "../components/ProduitForm";
 import ProduitList from "../components/ProduitList";
 import BarcodeScanner from "../components/BarcodeScanner";
 import { PRODUCT_CATEGORIES } from "../utils/constants";
+import SkeletonTable from "../components/SkeletonTable";
+import { useDebounce } from "../hooks/useDebounce";
+import { usePagination } from "../hooks/usePagination";
 
 const ProduitsPage = () => {
   const { isAdmin } = useAuth();
@@ -26,6 +29,8 @@ const ProduitsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("nom");
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     fetchProduits();
@@ -128,8 +133,10 @@ const ProduitsPage = () => {
     .filter((p) => p.isService !== true)
     .filter((produit) => {
       const matchesSearch =
-        produit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        produit.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        produit.nom.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        produit.description
+          ?.toLowerCase()
+          .includes(debouncedSearch.toLowerCase());
       const matchesCategory =
         !selectedCategory || produit.categorie === selectedCategory;
       return matchesSearch && matchesCategory;
@@ -147,19 +154,41 @@ const ProduitsPage = () => {
       }
     });
 
+  const {
+    page,
+    pageSize,
+    setPageSize,
+    totalPages,
+    totalItems,
+    pagedItems,
+    nextPage,
+    prevPage,
+  } = usePagination(filteredProduits, 10);
+
   if (loading && produits.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="page">
+        <div className="page-container">
+          <div className="card mb-6">
+            <div className="px-4 py-5 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Gestion des Produits
+                </h1>
+              </div>
+            </div>
+          </div>
+          <SkeletonTable rows={6} cols={8} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div className="page">
+      <div className="page-container">
         {/* En-tête */}
-        <div className="bg-white shadow rounded-lg mb-6">
+        <div className="card mb-6">
           <div className="px-4 py-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold text-gray-900">
@@ -169,7 +198,7 @@ const ProduitsPage = () => {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setShowBarcodeScanner(!showBarcodeScanner)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors flex items-center space-x-2"
+                    className="btn-success"
                   >
                     <svg
                       className="w-4 h-4"
@@ -186,7 +215,7 @@ const ProduitsPage = () => {
                   </button>
                   <button
                     onClick={() => setShowForm(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+                    className="btn-primary"
                   >
                     Ajouter un produit
                   </button>
@@ -201,12 +230,12 @@ const ProduitsPage = () => {
                 placeholder="Rechercher un produit..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-field"
               />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Toutes les catégories</option>
                 {PRODUCT_CATEGORIES.map((category) => (
@@ -218,7 +247,7 @@ const ProduitsPage = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="nom">Trier par nom</option>
                 <option value="prix">Trier par prix</option>
@@ -250,16 +279,52 @@ const ProduitsPage = () => {
         )}
 
         {/* Liste des produits */}
-        <ProduitList
-          produits={filteredProduits}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          isAdmin={isAdmin}
-        />
+        {loading ? (
+          <SkeletonTable rows={6} cols={8} />
+        ) : (
+          <ProduitList
+            produits={pagedItems}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {/* Pagination */}
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            {totalItems} produit(s), page {page}/{totalPages}
+          </div>
+          <div className="flex items-center space-x-2">
+            <select
+              className="select-field"
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+            >
+              <option value={10}>10 / page</option>
+              <option value={25}>25 / page</option>
+              <option value={50}>50 / page</option>
+            </select>
+            <button
+              onClick={prevPage}
+              className="btn-secondary"
+              disabled={page === 1}
+            >
+              Précédent
+            </button>
+            <button
+              onClick={nextPage}
+              className="btn-secondary"
+              disabled={page === totalPages || totalPages === 0}
+            >
+              Suivant
+            </button>
+          </div>
+        </div>
 
         {/* Gestion des erreurs */}
         {error && (
-          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-md">
+          <div className="mt-6 message-error">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg

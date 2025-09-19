@@ -202,9 +202,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 onChange={handleChange}
                 required
                 maxLength={VALIDATION.MAX_NAME_LENGTH}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.nom ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`input-field ${errors.nom ? "input-error" : ""}`}
                 placeholder="Nom du produit"
               />
               {getFieldError("nom")}
@@ -222,7 +220,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 name="categorie"
                 value={formData.categorie}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Sélectionner une catégorie</option>
                 {PRODUCT_CATEGORIES.map((category) => (
@@ -242,7 +240,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 type="text"
                 value={formData.reference}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="input-field"
                 placeholder="Référence interne"
               />
             </div>
@@ -260,8 +258,8 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                   max={VALIDATION.MAX_PRICE}
                   value={formData.prixAchatHT}
                   onChange={handleChange}
-                  className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.prixAchatHT ? "border-red-300" : "border-gray-300"
+                  className={`input-field ${
+                    errors.prixAchatHT ? "input-error" : ""
                   }`}
                   placeholder="0.00"
                 />
@@ -286,9 +284,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                   value={formData.stock}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.stock ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`input-field ${errors.stock ? "input-error" : ""}`}
                   placeholder="0"
                 />
                 {getFieldError("stock")}
@@ -309,8 +305,8 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                   value={formData.prixVenteTTC}
                   onChange={handleChange}
                   required
-                  className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.prixVenteTTC ? "border-red-300" : "border-gray-300"
+                  className={`input-field ${
+                    errors.prixVenteTTC ? "input-error" : ""
                   }`}
                   placeholder="0.00"
                 />
@@ -330,9 +326,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 max={100}
                 value={formData.tauxTVA}
                 onChange={handleChange}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.tauxTVA ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`input-field ${errors.tauxTVA ? "input-error" : ""}`}
                 placeholder="Ex: 19"
               />
               {getFieldError("tauxTVA")}
@@ -346,7 +340,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 name="fournisseurId"
                 value={formData.fournisseurId}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="select-field"
               >
                 <option value="">Sélectionner un fournisseur</option>
                 {fournisseurs.map((f) => (
@@ -368,7 +362,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                   min={0}
                   value={formData.seuilAlerteStock}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="input-field"
                   placeholder="Ex: 10"
                 />
               </div>
@@ -397,8 +391,8 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 value={formData.codeBarre}
                 onChange={handleChange}
                 maxLength={13}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.codeBarre ? "border-red-300" : "border-gray-300"
+                className={`input-field ${
+                  errors.codeBarre ? "input-error" : ""
                 }`}
                 placeholder="13 chiffres (EAN-13)"
               />
@@ -430,7 +424,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 value={rackAisle}
                 onChange={(e) => setRackAisle(e.target.value)}
                 placeholder="Ex: A"
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+                className="input-field"
               />
             </div>
             <div>
@@ -442,7 +436,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 value={rackColumn}
                 onChange={(e) => setRackColumn(e.target.value)}
                 placeholder="Ex: 3"
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+                className="input-field"
               />
             </div>
             <div>
@@ -454,7 +448,7 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
                 value={rackShelf}
                 onChange={(e) => setRackShelf(e.target.value)}
                 placeholder="Ex: 2"
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300"
+                className="input-field"
               />
             </div>
           </div>
@@ -473,8 +467,8 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
               value={formData.description}
               onChange={handleChange}
               maxLength={VALIDATION.MAX_DESCRIPTION_LENGTH}
-              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.description ? "border-red-300" : "border-gray-300"
+              className={`input-field ${
+                errors.description ? "input-error" : ""
               }`}
               placeholder="Description du produit (optionnel)"
             />
@@ -486,17 +480,10 @@ const ProduitForm = ({ produit, onSubmit, onCancel }) => {
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-            >
+            <button type="button" onClick={onCancel} className="btn-secondary">
               Annuler
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
+            <button type="submit" className="btn-primary">
               {produit ? "Mettre à jour" : "Ajouter"}
             </button>
           </div>

@@ -10,10 +10,12 @@
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "start": "cd backend && npm start",
+    "start:improved": "node check-installation.js && concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "db:setup": "cd backend && npm run db:generate && npm run db:push && npm run db:seed",
     "db:reset": "cd backend && npm run db:push && npm run db:seed",
     "check": "node check-installation.js",
-    "test": "echo \"Tests non configurés\" && exit 0"
+    "test": "node test-application.js",
+    "test:app": "node test-application-improved.js"
   },
   "keywords": [
     "gestion",

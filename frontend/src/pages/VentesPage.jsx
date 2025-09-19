@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth.jsx";
 import { useVentes, useProduits } from "../hooks/useApi";
 import VenteForm from "../components/VenteForm";
 import VenteList from "../components/VenteList";
@@ -27,7 +27,7 @@ const VentesPage = () => {
 
   useEffect(() => {
     fetchVentes();
-  }, []);
+  }, [fetchVentes]);
 
   const handleSubmit = async (venteData) => {
     try {
@@ -38,7 +38,6 @@ const VentesPage = () => {
         const newVente = await createVente(venteData);
         // Afficher le ticket pour la nouvelle vente
         if (newVente) {
-        
           setLastVente(newVente);
         }
       }

@@ -14,7 +14,7 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 antialiased;
   }
 }
 
@@ -22,27 +22,27 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+    @apply inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-soft transition-colors;
   }
 
   .btn-secondary {
-    @apply bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+    @apply inline-flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2.5 px-4 rounded-lg shadow-soft transition-colors;
   }
 
   .btn-success {
-    @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+    @apply inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-soft transition-colors;
   }
 
   .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+    @apply inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-soft transition-colors;
   }
 
   .input-field {
-    @apply w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-soft;
   }
 
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm transition-shadow duration-200;
+    @apply bg-white rounded-2xl border border-gray-200 shadow-card transition-shadow duration-200;
   }
 
   .table-header {
@@ -59,8 +59,7 @@
   }
 
   .select-field {
-    @apply block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm
-           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-soft focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500;
   }
 
   .input-error {
@@ -97,7 +96,7 @@
   }
 
   .stat-card {
-    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+    @apply bg-white rounded-xl border border-gray-200 shadow-soft;
   }
 
   .card-body {

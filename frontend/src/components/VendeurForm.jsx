@@ -84,7 +84,7 @@ const VendeurForm = ({ vendeur, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="bg-white shadow rounded-lg">
+    <div className="card card-hoverable">
       <div className="px-4 py-5 sm:p-6">
         <h2 className="text-xl font-semibold mb-4">
           {vendeur ? "Modifier le vendeur" : "Ajouter un nouveau vendeur"}
@@ -107,9 +107,7 @@ const VendeurForm = ({ vendeur, onSubmit, onCancel }) => {
                 onChange={handleChange}
                 required
                 maxLength={50}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.nom ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`input-field ${errors.nom ? "input-error" : ""}`}
                 placeholder="Nom et prénom"
               />
               {getFieldError("nom")}
@@ -129,9 +127,7 @@ const VendeurForm = ({ vendeur, onSubmit, onCancel }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.email ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`input-field ${errors.email ? "input-error" : ""}`}
                 placeholder="email@exemple.com"
               />
               {getFieldError("email")}
@@ -153,8 +149,8 @@ const VendeurForm = ({ vendeur, onSubmit, onCancel }) => {
                 value={formData.password}
                 onChange={handleChange}
                 minLength={6}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.password ? "border-red-300" : "border-gray-300"
+                className={`input-field ${
+                  errors.password ? "input-error" : ""
                 }`}
                 placeholder={
                   vendeur ? "Laisser vide pour ne pas changer" : "Mot de passe"
@@ -170,17 +166,10 @@ const VendeurForm = ({ vendeur, onSubmit, onCancel }) => {
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-            >
+            <button type="button" onClick={onCancel} className="btn-secondary">
               Annuler
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
+            <button type="submit" className="btn-primary">
               {vendeur ? "Mettre à jour" : "Ajouter"}
             </button>
           </div>
