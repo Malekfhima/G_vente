@@ -145,7 +145,7 @@ const ServicesPage = () => {
       nom: service.nom,
       description: service.description || "",
       prix: service.prix.toString(),
-      categorie: service.categorie || "",
+      categorieId: service.categorieId || "",
       isService: true,
     });
     setShowForm(true);

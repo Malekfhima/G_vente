@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import { VALIDATION } from "../utils/constants";
 
 const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
+  const isEdit = !!vente;
   const [formData, setFormData] = useState({
     produitId: vente?.produitId || "",
     quantite: vente?.quantite || "",
   });
 
   const [selectedProduit, setSelectedProduit] = useState(
-    produits.find((p) => p.id === vente?.produitId) || null
+    (vente?.produit && vente.produit) ||
+      produits.find((p) => p.id === vente?.produitId) ||
+      null
   );
 
   const [errors, setErrors] = useState({});
@@ -24,14 +27,14 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
     }
   }, [formData.produitId, produits]);
 
-  // Pré-sélectionner le premier produit si aucun n'est sélectionné et que la liste est chargée
+  // En création uniquement: pré-sélectionner le premier produit si aucun n'est sélectionné
   useEffect(() => {
-    if (!formData.produitId && produits.length > 0) {
+    if (!isEdit && !formData.produitId && produits.length > 0) {
       const first = produits[0];
       setFormData((prev) => ({ ...prev, produitId: first.id }));
       setSelectedProduit(first);
     }
-  }, [produits, formData.produitId]);
+  }, [isEdit, produits, formData.produitId]);
 
   // Filtrer les produits selon la recherche
   const filteredProduits = produits.filter(
@@ -72,7 +75,12 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
 
     if (!formData.quantite || formData.quantite <= 0) {
       newErrors.quantite = "La quantité doit être supérieure à 0";
-    } else if (selectedProduit && formData.quantite > selectedProduit.stock) {
+    } else if (
+      !isEdit &&
+      selectedProduit &&
+      formData.quantite > selectedProduit.stock
+    ) {
+      // En création, limiter par le stock disponible. En modification, le backend gère la différence.
       newErrors.quantite = `La quantité ne peut pas dépasser le stock disponible (${selectedProduit.stock})`;
     } else if (formData.quantite > VALIDATION.MAX_QUANTITY) {
       newErrors.quantite = `La quantité ne peut pas dépasser ${VALIDATION.MAX_QUANTITY}`;
@@ -202,6 +210,7 @@ const VenteForm = ({ vente, produits, onSubmit, onCancel }) => {
                   value={formData.produitId}
                   onChange={handleChange}
                   required
+                  disabled={isEdit}
                   className={`select-field ${
                     errors.produitId ? "input-error" : ""
                   }`}

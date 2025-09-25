@@ -7,7 +7,7 @@ import VenteList from "../components/VenteList";
 import TicketCaisse from "../components/TicketCaisse";
 
 const VentesPage = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const {
     ventes,
     loading,
@@ -90,6 +90,65 @@ const VentesPage = () => {
     setEditingVente(null);
   };
 
+  const sendInvoice = async (venteId) => {
+    const { value: email } = await Swal.fire({
+      title: "Envoyer la facture",
+      input: "email",
+      inputLabel: "Email du client",
+      inputPlaceholder: "client@example.com",
+      inputValue: user?.email || "malekfhima1@gmail.com",
+      showCancelButton: true,
+      confirmButtonText: "Envoyer",
+      cancelButtonText: "Annuler",
+    });
+    if (!email) return;
+    try {
+      const api = (await import("../services/api")).default;
+      const resp = await api.sendInvoiceEmail(venteId, email);
+      if (resp?.previewUrl) {
+        Swal.fire({
+          icon: "success",
+          title: "Envoyé (aperçu)",
+          html: `<a href="${resp.previewUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Ouvrir l'aperçu de l'email</a>`,
+        });
+      } else {
+        Swal.fire({
+          icon: "success",
+          title: "Envoyé",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+      }
+    } catch (e) {
+      Swal.fire({
+        icon: "error",
+        title: "Erreur",
+        text: e.message || "Envoi impossible",
+      });
+    }
+  };
+
+  const openFromQR = async () => {
+    const { value: data } = await Swal.fire({
+      title: "Ouvrir via QR",
+      input: "text",
+      inputLabel: "Collez la donnée du QR (JSON)",
+      inputPlaceholder: '{"type":"vente","id":123}',
+      showCancelButton: true,
+      confirmButtonText: "Ouvrir",
+      cancelButtonText: "Annuler",
+    });
+    if (!data) return;
+    try {
+      const api = (await import("../services/api")).default;
+      const vente = await api.getVenteByQR(data);
+      setEditingVente(vente);
+      setShowForm(true);
+    } catch (e) {
+      Swal.fire({ icon: "error", title: "QR invalide", text: e.message || "" });
+    }
+  };
+
   if (loading && ventes.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -104,8 +163,18 @@ const VentesPage = () => {
         {/* En-tête */}
         <div className="bg-white shadow rounded-lg mb-6">
           <div className="px-4 py-5 sm:p-6">
-            <div className="text-sm text-gray-600">
-              {ventes.length} vente(s) enregistrée(s)
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                {ventes.length} vente(s) enregistrée(s)
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={openFromQR}
+                  className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                >
+                  Ouvrir via QR
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -168,6 +237,15 @@ const VentesPage = () => {
           onEdit={handleEdit}
           onDelete={handleDelete}
           isAdmin={isAdmin}
+          extraActions={(vente) => (
+            <button
+              onClick={() => sendInvoice(vente.id)}
+              className="text-blue-600 hover:text-blue-800 ml-2"
+              title="Envoyer facture par email"
+            >
+              Envoyer facture
+            </button>
+          )}
         />
 
         {/* Modal du ticket de caisse pour nouvelle vente */}

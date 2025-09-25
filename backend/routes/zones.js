@@ -14,10 +14,10 @@ const { authenticateToken, requireAdmin } = require("../middleware/auth");
 
 // Routes publiques (lecture seule)
 router.get("/", getAllZones);
-router.get("/:id", getZoneById);
 router.get("/stats/rentability", getZoneRentability);
 router.get("/stats/top", getTopZones);
 router.get("/stats/trends", getZoneTrends);
+router.get("/:id", getZoneById);
 
 // Routes protégées (admin seulement)
 router.post("/", authenticateToken, requireAdmin, createZone);

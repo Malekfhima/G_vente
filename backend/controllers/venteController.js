@@ -527,6 +527,111 @@ const generateTicketPDF = async (req, res) => {
   }
 };
 
+// Envoyer une facture par email avec QRCode pour ouvrir/modifier la vente
+const QRCode = require("qrcode");
+const nodemailer = require("nodemailer");
+const sendInvoiceEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email requis" });
+
+    const vente = await prisma.vente.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        user: { select: { id: true, nom: true, email: true } },
+        produit: { select: { id: true, nom: true, prix: true } },
+      },
+    });
+    if (!vente) return res.status(404).json({ message: "Vente non trouvée" });
+
+    // Générer un code qui référence la vente (ex: payload JSON signé simple)
+    const payload = { type: "vente", id: vente.id };
+    const qrDataUrl = await QRCode.toDataURL(JSON.stringify(payload));
+
+    // Simple facture HTML (intègre le QR)
+    const html = `
+      <div style="font-family:Arial,sans-serif;">
+        <h2>Facture #${vente.id}</h2>
+        <p>Date: ${new Date(vente.date).toLocaleString()}</p>
+        <p>Client: ${vente.user?.nom || "-"}</p>
+        <table style="border-collapse:collapse;min-width:300px" border="1" cellpadding="6">
+          <tr><th>Produit</th><th>Quantité</th><th>Prix Total</th></tr>
+          <tr>
+            <td>${vente.produit.nom}</td>
+            <td>${vente.quantite}</td>
+            <td>${vente.prixTotal.toFixed(2)} TND</td>
+          </tr>
+        </table>
+        <p>QR Code (scanner pour ouvrir la vente):</p>
+        <img src="${qrDataUrl}" alt="QR Vente" />
+      </div>
+    `;
+
+    // Transport SMTP
+    let transporter;
+    let usedEthereal = false;
+    if (process.env.SMTP_USER && process.env.SMTP_HOST) {
+      transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || "587"),
+        secure: String(process.env.SMTP_PORT || "587") === "465",
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+    } else {
+      // Fallback: créer un compte de test Ethereal en développement
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
+        auth: { user: testAccount.user, pass: testAccount.pass },
+      });
+      usedEthereal = true;
+    }
+
+    const info = await transporter.sendMail({
+      from: process.env.MAIL_FROM || "no-reply@gestion-vente.local",
+      to: email,
+      subject: `Facture Vente #${vente.id}`,
+      html,
+    });
+
+    const response = { message: "Facture envoyée", messageId: info.messageId };
+    if (usedEthereal) {
+      response.previewUrl = nodemailer.getTestMessageUrl(info);
+    }
+    res.json(response);
+  } catch (error) {
+    console.error("Erreur envoi facture:", error);
+    res.status(500).json({ message: "Erreur envoi facture" });
+  }
+};
+
+// Résoudre une vente via QRCode (payload JSON encodé)
+const getVenteByQR = async (req, res) => {
+  try {
+    const { data } = req.query; // data = base64/texte JSON du QR
+    if (!data)
+      return res.status(400).json({ message: "Paramètre data requis" });
+    let payload;
+    try {
+      payload = JSON.parse(data);
+    } catch (_) {
+      return res.status(400).json({ message: "QR invalide" });
+    }
+    if (payload?.type !== "vente" || !payload?.id) {
+      return res.status(400).json({ message: "QR non supporté" });
+    }
+    // Réutiliser le handler existant
+    req.params.id = String(payload.id);
+    return getVenteById(req, res);
+  } catch (error) {
+    console.error("Erreur QR vente:", error);
+    res.status(500).json({ message: "Erreur QR" });
+  }
+};
+
 module.exports = {
   getAllVentes,
   getVenteById,
@@ -537,6 +642,8 @@ module.exports = {
   getVentesStats,
   exportVentesPDF,
   generateTicketPDF,
+  sendInvoiceEmail,
+  getVenteByQR,
 };
 
 // Créer une vente groupée (plusieurs articles en une transaction)

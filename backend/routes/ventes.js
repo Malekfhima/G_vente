@@ -13,6 +13,8 @@ const {
   createGroupedVente,
   getGroupedVentes,
   getGroupedVenteDetails,
+  sendInvoiceEmail,
+  getVenteByQR,
 } = require("../controllers/venteController");
 const { authenticateToken, requireAdmin } = require("../middleware/auth");
 
@@ -32,6 +34,10 @@ router.post("/grouped", authenticateToken, createGroupedVente);
 router.get("/export/pdf", authenticateToken, exportVentesPDF);
 // Génération d'un ticket PDF depuis un panier
 router.post("/ticket/pdf", authenticateToken, generateTicketPDF);
+// Email facture avec QRCode
+router.post("/:id/email-invoice", authenticateToken, sendInvoiceEmail);
+// Résoudre une vente depuis QR (payload JSON encodé)
+router.get("/by-qr", authenticateToken, getVenteByQR);
 router.get("/:id", authenticateToken, getVenteById);
 router.post("/", authenticateToken, createVente);
 router.put("/:id", authenticateToken, updateVente);

@@ -113,6 +113,20 @@ class ApiService {
     return this.request("/ventes");
   }
 
+  // Email facture avec QRCode
+  async sendInvoiceEmail(venteId, email) {
+    return this.request(`/ventes/${venteId}/email-invoice`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  // Récupérer une vente depuis QR (payload JSON encodé)
+  async getVenteByQR(data) {
+    const q = new URLSearchParams({ data }).toString();
+    return this.request(`/ventes/by-qr?${q}`);
+  }
+
   // Services (produits isService=true)
   async getServices() {
     return this.request("/services");

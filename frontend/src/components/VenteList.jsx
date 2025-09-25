@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TicketCaisse from "./TicketCaisse";
 
-const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
+const VenteList = ({ ventes, onEdit, onDelete, isAdmin, extraActions }) => {
   const [selectedVente, setSelectedVente] = useState(null);
 
   const formatCurrency = (amount) => {
@@ -132,9 +132,9 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
                       {vente.user?.email}
                     </div>
                   </td>
-                  {(onEdit || onDelete) && (
+                  {(onEdit || onDelete || extraActions) && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 items-center">
                         <button
                           onClick={() => setSelectedVente(vente)}
                           className="text-green-600 hover:text-green-900 transition-colors mr-2"
@@ -157,6 +157,7 @@ const VenteList = ({ ventes, onEdit, onDelete, isAdmin }) => {
                             Supprimer
                           </button>
                         )}
+                        {extraActions && extraActions(vente)}
                       </div>
                     </td>
                   )}
